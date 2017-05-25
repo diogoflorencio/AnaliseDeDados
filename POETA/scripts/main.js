@@ -64,6 +64,7 @@
 	var coresGrafico = ["#00ff00","#ff0000","#c7dbe5"];
 	
 	var cor_level1 = "#1C86EE";
+    var cor_level1_emCurso = "#FF1493";
 
     var cor_AtividadeSemNota = "#ffffff"
 
@@ -95,7 +96,7 @@ var m = [20, 120, 20, 120],
     var spendField = "sum_Federal";
     var sumFields = ["Federal", "GovXFer", "State", "Local"];
     var sourceFields = ["Category", "Level1", "Level2", "Level3", "Level4", "Level5", "Level6", "Level7", "Level8", "Level9", "Level10", "Level11", "Level12", "Level13", "Level14", "Level15", "Level16", "Level17", "Level18"];
-	var campo = ["Nota >= 7","Nota < 7","Desistentes","Desistentes aqui","Atividade sem nota"];
+	var campo = ["Nota >= 7","Nota < 7","Desistentes","Desistentes aqui","Atividade sem nota","Em curso"];
 	
 	//Atributo que será usado para calcular a cor dos nós
 	var campoAnalize = "sum_Federal";
@@ -169,8 +170,6 @@ function main() {
                 data.push(d);
         })
 
-       
-        console.log(data);
 
         var nest = d3.nest();
         var maxLevel = 17;
@@ -271,7 +270,6 @@ function sumNodesCopia(root) {
 					}
 				}   
                 else if(folhas[i]["Nota"+depth] < 0){
-                    console.log("[data]"+i);
                     pai[campo[4]]++;
                 }
 				else if(folhas[i]["Nota"+depth] < 7){
@@ -332,9 +330,16 @@ function update(source) {
         nodes.forEach(function (d) {
             d.y = d.depth * 170;  //Diminuí o tamanho da perna de um nó para o outro (25/03/2016)
             d.numChildren = (d.children) ? d.children.length : 0;
-			console.log(d[campo[4]]);
 			if(d.depth <= 1){
-				d.linkColor = cor_level1;
+                // var renato = [];
+                // var daux = d;
+                // getLeafs(daux, renato);
+                // console.log(d[campo[5]]);
+                // if(renato[0][campo[5]] == "S"){
+                //   d.linkColor = cor_level1_emCurso;
+                // }
+                // else
+				    d.linkColor = cor_level1;
 			}
 			else if(d.numChildren > 0 || d._children){
                  if(d[campo[4]] > 0 ){
@@ -360,7 +365,7 @@ function update(source) {
 				
 				if(d.linkColor !== coresGrafico[2]) d.linkColor = escalaNota(media);
 			}
-			});
+		});
         var node = svg.selectAll("g.node")
             .data(nodes, function (d) {
                 return d.id || (d.id = ++i);
