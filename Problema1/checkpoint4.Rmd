@@ -1,0 +1,50 @@
+---
+title: "Problema 1 - Checkpoint 4 AD1 UFCG"
+author: "Diogo Florêncio"
+output:
+  html_notebook:
+    theme: readable
+    toc: true
+    toc_float: true
+    fig_width: 5
+    fig_height: 4
+editor_options: 
+  chunk_output_type: inline
+---
+
+
+```{r}
+library(tidyr)
+library(dplyr)
+library(ggplot2)
+dados <- read.csv("series_from_imdb.csv",encoding="UTF-8")
+```
+
+```{r}
+dados %>% 
+    group_by(series_name) %>% 
+    summarise(mediana = median(UserRating),
+              maior_nota = max(UserRating),
+              menor_nota = min(UserRating)) %>%
+  arrange(desc(mediana))
+```
+
+
+```{r}
+dados %>% 
+    group_by(series_name, Episode) %>% 
+    summarise(maior_nota = max(UserRating)) %>%
+    arrange(desc(maior_nota))
+```
+
+```{r}
+select(dados, series_name)
+```
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
