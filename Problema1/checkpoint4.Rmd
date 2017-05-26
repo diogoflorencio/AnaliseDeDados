@@ -46,13 +46,20 @@ Como são avaliados o primeiro episódio das séries?
 
 ```
 Qual a melhor série?
-
 ```{r}
 dados %>% 
     group_by(series_name) %>% 
     summarise(mediana = median(UserRating),
               variancia = var(UserRating)) %>%
     arrange(desc(mediana), desc(variancia))
+```
+
+```{r}
+dados %>% 
+    group_by(series_name) %>% 
+    summarise(votos = sum(UserVotes),
+              mediana = median(UserRating)) %>%
+    arrange(desc(mediana))
 ```
 
 
