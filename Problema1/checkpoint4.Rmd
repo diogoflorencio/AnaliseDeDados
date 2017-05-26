@@ -19,27 +19,42 @@ library(dplyr)
 library(ggplot2)
 dados <- read.csv("series_from_imdb.csv",encoding="UTF-8")
 ```
+Qual série tem a temporada mais irregular?
+```{r}
+x <- dados %>% 
+    group_by(series_name, season) %>% 
+    summarise(variancia = var(UserRating),
+              menor_nota = min(UserRating),
+              maior_nota = max(UserRating)) %>%
+  arrange(desc(variancia))
+```
+Qual série possui a melhor temporada?
+```{r}
+dados %>% 
+    group_by(series_name) %>% 
+    summarise(mediana = median(UserRating),
+              variancia = var(UserRating),
+              menor_nota = min(UserRating),
+              maior_nota = max(UserRating)) %>%
+  arrange(desc(mediana),desc(variancia))
+
+
+
+```
+Como são avaliados o primeiro episódio das séries?
+```{r}
+
+```
+Qual a melhor série?
 
 ```{r}
 dados %>% 
     group_by(series_name) %>% 
     summarise(mediana = median(UserRating),
-              maior_nota = max(UserRating),
-              menor_nota = min(UserRating)) %>%
-  arrange(desc(mediana))
+              variancia = var(UserRating)) %>%
+    arrange(desc(mediana), desc(variancia))
 ```
 
-
-```{r}
-dados %>% 
-    group_by(series_name, Episode) %>% 
-    summarise(maior_nota = max(UserRating)) %>%
-    arrange(desc(maior_nota))
-```
-
-```{r}
-select(dados, series_name)
-```
 
 This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
 
