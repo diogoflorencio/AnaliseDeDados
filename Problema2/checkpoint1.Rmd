@@ -3,7 +3,7 @@ title: "Problema 2 - Checkpoint 1 AD1 UFCG"
 author: "Diogo Florêncio"
 output:
   html_notebook:
-    theme: readable
+    theme: lumen
     toc: true
     toc_float: true
     fig_width: 5
