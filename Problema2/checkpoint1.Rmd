@@ -39,15 +39,8 @@ A qualidade das temporadas vem caindo ao longo da série, porém quase todos os 
 ###The Walking Dead
 The Walking Dead é uma série de televisão dramática e pós-apocalíptica norte-americana, estreou no dia 30 outubro de 2010, no canal de televisão a cabo AMC, nos Estados Unidos. A série possui 7 temporadas finalizadas, confira a avaliação dos expectadores para os episódios de cada temporada. 
 ```{r}
-highchart() %>% 
-  hc_xAxis(TWD$season_ep) %>%
-  hc_add_series(name = "temporada 1" , data = (TWD %>% filter(season == 1))$UserRating) %>%  
-  hc_add_series(name = "temporada 2" , data = (TWD %>% filter(season == 2))$UserRating) %>%  
-  hc_add_series(name = "temporada 3" , data = (TWD %>% filter(season == 3))$UserRating) %>%
-  hc_add_series(name = "temporada 4" , data = (TWD %>% filter(season == 4))$UserRating) %>%  
-  hc_add_series(name = "temporada 5" , data = (TWD %>% filter(season == 5))$UserRating) %>%  
-  hc_add_series(name = "temporada 6" , data = (TWD %>% filter(season == 6))$UserRating) %>%
-  hc_add_series(name = "temporada 7" , data = (TWD %>% filter(season == 7))$UserRating)
+TWD <- mutate(TWD, season_name = paste("Temporada", season))
+hchart(TWD, "line", hcaes(x = season_ep, y = UserRating, group = season_name))
 ```
 O 9º episódio "No Way Out", da 6º temporada se destaca com a maior nota da série com 9,7. A pior avaliação foi atribuida ao 6º episódio "Swear", da 7º temporada com nota 5,7. 
 

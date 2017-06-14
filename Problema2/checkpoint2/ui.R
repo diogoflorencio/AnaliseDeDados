@@ -8,7 +8,7 @@
 #
 
 library(shiny)
-library(googleVis)
+library(tidyverse)
 
 dados <- read.csv("../../dados/series_from_imdb.csv",encoding="UTF-8")
 series <- dados$series_name
@@ -23,7 +23,7 @@ shinyUI(fluidPage(
   sidebarLayout(
     sidebarPanel(
       
-      selectInput("Serie 1",
+      selectInput("Serie1",
                   "Selecione a primeira serie",
                   choices = sort(as.character(series)), 
                   selected = "Prison Break"),
@@ -31,7 +31,7 @@ shinyUI(fluidPage(
     selectInput("Serie 2",
                 "Selecione a segunda serie",
                 choices = sort(as.character(series)), 
-                selected = "Prison Break")
+                selected = "The Walking Dead")
   ),
     
     # Show a plot of the generated distribution
