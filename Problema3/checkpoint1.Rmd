@@ -11,11 +11,8 @@ library(cluster)
 library(ggdendro)
 ```
 # Tipos de filme de Sylvester Stallone
-This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
 
-Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
-
-
+Os dados utilizados foram do [Rotten Tomatoes](https://www.rottentomatoes.com) sobre os filmes de Sylvester Stallone.
 ```{r}
 from_page <- read_html("https://www.rottentomatoes.com/celebrity/sylvester_stallone") %>% 
     html_node("#filmographyTbl") %>% # A sintaxe da expressão é de um seletor à lá JQuery: https://rdrr.io/cran/rvest/man/html_nodes.html 
@@ -35,3 +32,19 @@ filmes = from_page %>%
 Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
 
 When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
+
+```{r}
+filmes %>% 
+    ggplot(aes(x = "Filmes", y = RATING)) + 
+    geom_jitter(width = .01, height = 0, size = 2, alpha = .6)
+
+filmes %>% 
+    ggplot(aes(x = "Filmes", y = YEAR)) + 
+    geom_jitter(width = .01, height = 0, size = 2, alpha = .6)
+
+filmes %>% 
+    ggplot(aes(x = "Filmes", y = `BOX OFFICE`)) + 
+    geom_jitter(width = .02, height = 0, size = 2, alpha = .6) + 
+    scale_y_log10() 
+```
+
