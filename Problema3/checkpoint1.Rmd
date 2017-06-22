@@ -1,14 +1,28 @@
 ---
-title: "Problema 3- Checkpoint 1"
-output: html_notebook
+title: "Problema 3 - Checkpoint 1 AD1 UFCG""
+output:
+  html_notebook:
+    theme: readable
+    toc: true
+    toc_float: true
+    fig_width: 5
+    fig_height: 4
+editor_options: 
+  chunk_output_type: inline
 ---
 
-```{r load_library}
-library(tidyverse)
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r load_code}
+library(tidyverse, warn.conflicts = F)
 library(rvest)
 library(plotly)
 library(cluster)
 library(ggdendro)
+theme_set(theme_light())
+source("plota_solucoes_hclust.R")
 ```
 # Tipos de filme de Sylvester Stallone
 
@@ -27,24 +41,45 @@ filmes = from_page %>%
            `BOX OFFICE` = as.numeric(gsub("[$|M]", "", `BOX OFFICE`))) %>% 
     filter(`BOX OFFICE` >= 1) # Tem dois filmes que não parecem ter sido lançados no mundo todo
 ```
-
-
-Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
-
-When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
-
+Para iniciar a análise de agrupamento considerei as variáveis RATING e BOX OFFICE. Inicialmente as váriaveis não apresentaram uma estrura clara de grupo, mas ao normalizar a escala os resultados obtidos foram diferentes.
 ```{r}
-filmes %>% 
-    ggplot(aes(x = "Filmes", y = RATING)) + 
-    geom_jitter(width = .01, height = 0, size = 2, alpha = .6)
+agrupamento_h_2d = filmes %>% 
+    column_to_rownames("TITLE") %>%
+    select(RATING, `BOX OFFICE`) %>% 
+    mutate(`BOX OFFICE` = log10(`BOX OFFICE`)) %>% 
+    mutate_all(funs(scale)) %>% 
+    dist(method = "euclidean") %>% 
+    hclust(method = "centroid")
 
-filmes %>% 
-    ggplot(aes(x = "Filmes", y = YEAR)) + 
-    geom_jitter(width = .01, height = 0, size = 2, alpha = .6)
+ggdendrogram(agrupamento_h_2d, rotate = TRUE)
 
-filmes %>% 
-    ggplot(aes(x = "Filmes", y = `BOX OFFICE`)) + 
-    geom_jitter(width = .02, height = 0, size = 2, alpha = .6) + 
-    scale_y_log10() 
+filmes2 = filmes %>% mutate(`BOX OFFICE` = log10(`BOX OFFICE`))
+plota_hclusts_2d(agrupamento_h_2d, 
+                 filmes2, 
+                 c("RATING", "`BOX OFFICE`"), 
+                 linkage_method = "ward.D", ks = 1:6) + scale_y_log10()
+
+distancias = filmes %>% 
+    column_to_rownames("TITLE") %>%
+    select(RATING, `BOX OFFICE`) %>% 
+    mutate(`BOX OFFICE` = log10(`BOX OFFICE`)) %>% 
+    mutate_all(funs(scale)) %>% 
+    dist(method = "euclidean")
+
+plot(silhouette(cutree(agrupamento_h_2d, k = 4), distancias))
+```
+Após a execução do algoritmo, a melhor solução foi com 3 grupos, pois parece estar melhor separado. Os grupos podem ser classificados em: acima da média (grupo1), razoáveis (grupo2) e abaixo da media. Exemplos de filmes que se encaixam no agrupamento são Creed e Rocky Balboa. Ambos pertencentes ao grupo acima da média sendo filmes muito bem avaliado pelo público. 
+```{r}
+filmes2 = agrupamento_h_md = filmes %>% 
+    mutate(TITLE_LENGTH = nchar(TITLE)) 
+
+
+atribuicoes_long %>% 
+    filter(k == 3) %>%
+    ggplot(aes(x = variavel, y = valor, group = TITLE, colour = grupo)) + 
+    geom_point(alpha = .3, size = .5) + 
+    geom_line(alpha = .7) + 
+    facet_wrap(~ paste("Grupo ", grupo)) + 
+    labs(x = "", y = "z-score")
 ```
 
