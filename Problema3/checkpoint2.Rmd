@@ -57,7 +57,7 @@ explorando_clusters %>%
     geom_point(color = "red")
 ```
 ## Agrupamento k- means
-Após definir a quantidades de clusters do agrupamento, agrapamento foi realizado através do método de clustering `k- means`. 
+Após definir a quantidades de clusters do agrupamento, agrapamento foi realizado através do método de clustering `k- means`. Analisando o agrupamento pode- se caracterizar os clusters. O clusters 1 agrupa unidades acadêmicas que possuem funcionários com idade proxima a média, e tem uma quantidade média de professores e funcionários, este grupo pode ser nomeado por `Medianos`. O cluster 2 engloba unidades acadêmicas com pouquissímos funcionários e idade abaixo da média, ou seja, seria o grupo `Sobreviventes`. O cluster 3, `Exatas`, concentra em sua maioria unidades acadêmicas com funcionários jovens, e que possuem muitos professores e funcionários. Por fim, o cluster 4 é referente a unidades acadêmicas com funcionários mais velhos que a média e que possuem menos professores e funcionários que a média, seria o grupo `Humanas`. 
 ```{r}
 set.seed(123)
 
