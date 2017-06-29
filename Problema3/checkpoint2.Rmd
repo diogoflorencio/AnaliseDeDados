@@ -35,7 +35,7 @@ dados.scaled %>%
     select(-unidade_academica) %>% 
     ggpairs()
 ```
-Pode-se definir o número de `clusters` do agrupamento, por meio do calculo da distância quadrática entre o centro dos clusters, o centro dos dados e os dados. Aqui o centro dos dados é um ponto imaginário na média de todas as variáveis. O gráfico relaciona as variáveis `betweenss` e `totss`. Essa proporção pode ser usada para definir um bom valor para o número de `clusters`. Quando ela para de crescer, para de valer à pena aumentar os `clusters`. Neste caso, um bom valor para o número de `clusters`seria 4.
+Pode-se definir o número de `clusters` do agrupamento, por meio do calculo da distância quadrática entre o centro dos clusters, o centro dos dados e os dados. Aqui o centro dos dados é um ponto imaginário na média de todas as variáveis. O gráfico relaciona as variáveis `betweenss` e `totss`, essa proporção pode ser usada para definir um bom valor para o número de `clusters`. Quando ela para de crescer, para de valer à pena aumentar os `clusters`. Neste caso, um bom valor para o número de `clusters`seria 4.
 ```{r}
 set.seed(123)
 explorando_clusters = tibble(clusters = 1:15) %>% 
@@ -52,8 +52,7 @@ explorando_clusters %>%
     geom_point(color = "red")
 ```
 ## Agrupamento kmeans
-
-Após definir 
+Após definir a quantidades de clusters do agrupamento, agrapamento foi realizado através do método de clustering `k- means`. 
 ```{r}
 n_clusters = 4
 set.seed(123)
