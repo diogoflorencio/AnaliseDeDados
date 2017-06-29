@@ -1,6 +1,10 @@
 ---
-title: "R Notebook"
-output: html_notebook
+title: "Problema 3 - Checkpoint 1 AD1 UFCG"
+author: "Diogo Florêncio"
+output: 
+    html_notebook
+editor_options: 
+  chunk_output_type: inline
 ---
 
 ```{r}
@@ -21,11 +25,12 @@ dados <- dados %>%
   group_by(unidade_academica = UORG_LOTACAO) %>% 
    summarise(total_funcionarios = sum(Outro,Professor.20h,Professor.40h.ou.DE),
               Professor.40h.ou.DE = Professor.40h.ou.DE, 
+              #Professor.20h = Professor.20h,
               idade_mediana = idade_mediana)%>%
   filter(total_funcionarios > 10) %>%
   ungroup()
 ```
-As variáveis escolhidas para o agrupamento foram `total de funcionários`, `Professor.40h.ou.DE` e `idade mediana`; uma descrição mais detalhada sobre os dados está disponível [aqui](https://github.com/nazareno/ciencia-de-dados-1). As escalas originais das variáveis apresentam uma diferença significativa em seus valores, deste modo foram normalizadas prevenindo que uma variável domine a análise. 
+As variáveis escolhidas para o agrupamento foram `total de funcionários`, `Professor.40h.ou.DE` e `idade_mediana`(50 percentil da idade dos funcionários); uma descrição mais detalhada sobre os dados está disponível [aqui](https://github.com/nazareno/tamanhos-da-ufcg). As escalas originais das variáveis apresentam uma diferença significativa em seus valores, deste modo foram normalizadas prevenindo que uma variável domine a análise. 
 ```{r}
 dados.scaled = dados %>% 
     mutate_each(funs(log), 2:4) %>% 
@@ -51,52 +56,42 @@ explorando_clusters %>%
     geom_line(color = "blue") + 
     geom_point(color = "red")
 ```
-## Agrupamento kmeans
+## Agrupamento k- means
 Após definir a quantidades de clusters do agrupamento, agrapamento foi realizado através do método de clustering `k- means`. 
 ```{r}
-n_clusters = 4
 set.seed(123)
+
+n_clusters = 4
+
 km = dados.scaled %>% 
     select(-unidade_academica) %>% 
     kmeans(centers = n_clusters, nstart = 20)
 
-# O df em formato longo, para visualização 
 dados.long = km %>% 
-    augment(dados.scaled) %>% # Adiciona o resultado de km 
-                            # aos dados originais dw2.scaled em 
-                            # uma variável chamada .cluster
+    augment(dados.scaled) %>% 
     gather(key = "variável", 
            value = "valor", 
-           -unidade_academica, -.cluster) # = move para long todas as 
-                                            # variávies menos repository_language 
-                                            # e .cluster
-
-dados.long %>% 
-    ggplot(aes(x = `variável`, y = valor, group = unidade_academica, colour = .cluster)) + 
-    #geom_point(alpha = 0.2) + 
-    geom_line(alpha = .5) + 
-    facet_wrap(~ .cluster) 
+           -unidade_academica, -.cluster) 
 
 autoplot(km, data = dados, label = TRUE)
 
+dados.long %>% 
+    ggplot(aes(x = `variável`, y = valor, group = unidade_academica, colour = .cluster)) + 
+    geom_point(alpha = 0.2) + 
+    geom_line(alpha = .5) + 
+    facet_wrap(~ paste("Cluster ",.cluster)) 
 ```
-
-
+Analisando a relação entre as variáveis, além da relação obvia e proporcional entre `Professor.40h.ou.DE` e `Total_funcionarios`, é possível perceber relações interessantes. `Total_funcionarios` se relaciona de maneira inversamente proporcional a `idade_mediana`, ou seja, em uma unidade acadêmica quanto mais funcionários ela tem mais novos eles tendem a ser. A relação entre `Professor.40h.ou.DE` e `idade_mediana` também e inversamente proporcional, dado uma unidade acadêmica quanto mais professores (40hrs ou dedicação exclusiva) ela tiver mais novos eles tendem a ser.
 ```{r}
-#summary(dw2.scaled)
 km %>% 
     augment(dados) %>%
     plot_ly(type = 'parcoords',
             line = list(color = ~.cluster, 
                         showScale = TRUE),
             dimensions = list(
-                #list(range = c(1, 4), label = "cluster", values = ~cluster),
-                list(#range = c(-3, 3),
-                     label = 'Total_funcionarios/UA', values = ~total_funcionarios),
-                list(#range = c(-3, 3),
-                     label = 'Professor.40h.ou.DE/UA', values = ~Professor.40h.ou.DE),
-                list(#range = c(-2, 3),
-                     label = 'idade_mediana/UA', values = ~idade_mediana)
+                list(label = 'Total_funcionarios/UA', values = ~total_funcionarios),
+                list(label = 'idade_mediana/UA', values = ~idade_mediana),
+                list(label = 'Professor.40h.ou.DE/UA', values = ~Professor.40h.ou.DE)
             )
     )
 ```
