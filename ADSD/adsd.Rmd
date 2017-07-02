@@ -1,0 +1,99 @@
+---
+title: "ADSD 2017.1"
+output: html_notebook
+---
+
+### Projeto de medição (análise de dados)
+```{r}
+library(tidyverse)
+library(highcharter)
+dados <- read.csv("../dados/adsd-projeto-medicao.csv",encoding="UTF-8") 
+pendrive_2GB <- dados %>%
+                filter(Capacidade == 2)
+pendrive_4GB <- dados %>%
+                filter(Capacidade == 4)
+pendrive_8GB <- dados %>%
+                filter(Capacidade == 8)
+```
+
+```{r}
+highchart() %>% 
+  hc_xAxis(dados$Tempo_ms) %>% 
+  hc_add_series(name = "2GB - ocupação 0%" , data = (dados %>% filter(Capacidade == 2, Ocupacao == 0, Operacao == "write"))$Tempo_ms) %>%  
+  hc_add_series(name = "2GB - ocupação 20%" , data = (dados %>% filter(Capacidade == 2, Ocupacao == 20, Operacao == "write"))$Tempo_ms) %>%  
+  hc_add_series(name = "2GB - ocupação 40%" , data = (dados %>% filter(Capacidade == 2, Ocupacao == 40, Operacao == "write"))$Tempo_ms)
+```
+
+
+```{r}
+pendrive_2GB %>% 
+    filter(Operacao == "write") %>% 
+    mutate(Ocupacao = as.character(Ocupacao),
+           Tamanho_do_Arquivo = Tam.do.arquivo)%>%
+    ggplot(aes(name = "", x = Ocupacao, y = Tempo_ms)) + 
+    geom_boxplot(outlier.color = NA) +   
+    geom_jitter(aes(width = .5, color = Tamanho_do_Arquivo),
+                 size = 5) +
+    ggtitle("Pen drive 2GB - Operação Write")
+```
+
+```{r}
+pendrive_2GB %>% 
+    filter(Operacao == "read") %>% 
+    mutate(Ocupacao = as.character(Ocupacao),
+           Tamanho_do_Arquivo = Tam.do.arquivo)%>%
+    ggplot(aes(name = "", x = Ocupacao, y = Tempo_ms)) + 
+    geom_boxplot(outlier.color = NA) +   
+    geom_jitter(aes(width = .5, color = Tamanho_do_Arquivo),
+                 size = 5) +
+    ggtitle("Pen drive 2GB - Operação Read")
+```
+
+```{r}
+pendrive_4GB %>% 
+    filter(Operacao == "write") %>% 
+    mutate(Ocupacao = as.character(Ocupacao),
+           Tamanho_do_Arquivo = Tam.do.arquivo)%>%
+    ggplot(aes(name = "", x = Ocupacao, y = Tempo_ms)) + 
+    geom_boxplot(outlier.color = NA) +   
+    geom_jitter(aes(width = .5, color = Tamanho_do_Arquivo),
+                 size = 5) +
+    ggtitle("Pen drive 4GB - Operação Write")
+```
+
+```{r}
+pendrive_4GB %>% 
+    filter(Operacao == "read") %>% 
+    mutate(Ocupacao = as.character(Ocupacao),
+           Tamanho_do_Arquivo = Tam.do.arquivo)%>%
+    ggplot(aes(name = "", x = Ocupacao, y = Tempo_ms)) + 
+    geom_boxplot(outlier.color = NA) +   
+    geom_jitter(aes(width = .5, color = Tamanho_do_Arquivo),
+                 size = 5) +
+    ggtitle("Pen drive 4GB - Operação Read")
+```
+
+```{r}
+pendrive_8GB %>% 
+    filter(Operacao == "write") %>% 
+    mutate(Ocupacao = as.character(Ocupacao),
+           Tamanho_do_Arquivo = Tam.do.arquivo)%>%
+    ggplot(aes(name = "", x = Ocupacao, y = Tempo_ms)) + 
+    geom_boxplot(outlier.color = NA) +   
+    geom_jitter(aes(width = .5, color = Tamanho_do_Arquivo),
+                 size = 5) +
+    ggtitle("Pen drive 8GB - Operação Write")
+```
+
+```{r}
+pendrive_8GB %>% 
+    filter(Operacao == "read") %>% 
+    mutate(Ocupacao = as.character(Ocupacao),
+           Tamanho_do_Arquivo = Tam.do.arquivo)%>%
+    ggplot(aes(name = "", x = Ocupacao, y = Tempo_ms)) + 
+    geom_boxplot(outlier.color = NA) +   
+    geom_jitter(aes(width = .5, color = Tamanho_do_Arquivo),
+                 size = 5) +
+    ggtitle("Pen drive 8GB - Operação Read")
+```
+
