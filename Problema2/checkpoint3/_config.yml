@@ -1,12 +1,13 @@
 # Site settings
-title: Problema 2 checkpoint 3
-email: diogo.lima@ccc.ufcg.edu.br
+title: mais um site sobre
+subtitle: estatísticas e outras coisas
+email: arthurlustosaa@gmail.com
 description: > # this means to ignore newlines until "baseurl:"
- site sobre tarefas realizadas na disciplina de análise de dados.
-baseurl: "/AnaliseDeDados/Problema1/checkpoint3"
-url: "https://diogoflorencio.github.io/AnaliseDeDados/Problema1/checkpoint3/" # the base hostname & protocol for your site
-twitter_username: jekyllrb
-github_username:  diogoflorencio
+  um site sobre estatísticas, tutorias e coisas outras. 
+baseurl: "/maisumsitesobre" # the subpath of your site, e.g. /blog/
+url: "https://arthurlustosa.github.io/maisumsitesobre/" # the base hostname & protocol for your site
+twitter_username: arthurlustosa_
+github_username:  arthurlustosa
 permalink: /:year/:month/:title.html
 
 # Build settings
