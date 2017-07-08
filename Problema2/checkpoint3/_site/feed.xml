@@ -2,12 +2,12 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Problema 2 checkpoint 3</title>
-    <description>Write an awesome description for your new site here. You can edit this line in _config.yml. It will appear in your document head meta (for Google search results) and in your feed.xml site description.
+    <description>site sobre tarefas realizadas na disciplina de análise de dados.
 </description>
-    <link>https://diogoflorencio.github.io/AnaliseDeDados/Problema1/checkpoint3//checkpoint3/</link>
-    <atom:link href="https://diogoflorencio.github.io/AnaliseDeDados/Problema1/checkpoint3//checkpoint3/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Sat, 08 Jul 2017 09:02:35 -0300</pubDate>
-    <lastBuildDate>Sat, 08 Jul 2017 09:02:35 -0300</lastBuildDate>
+    <link>http://localhost:4000/AnaliseDeDados/Problema1/checkpoint3/</link>
+    <atom:link href="http://localhost:4000/AnaliseDeDados/Problema1/checkpoint3/feed.xml" rel="self" type="application/rss+xml" />
+    <pubDate>Sat, 08 Jul 2017 09:18:31 -0300</pubDate>
+    <lastBuildDate>Sat, 08 Jul 2017 09:18:31 -0300</lastBuildDate>
     <generator>Jekyll v3.5.0</generator>
     
       <item>
@@ -93,8 +93,8 @@ A melhor temporada seria a 3º. No periodo equivalente a 3º temporada, a linha 
 A quantidade de episódios decresce ao longo das temporadas. Deste modo, a primeira temporada tende a ser a mais extensa para maioria das séries.&lt;/p&gt;
 </description>
         <pubDate>Sat, 08 Jul 2017 06:02:30 -0300</pubDate>
-        <link>https://diogoflorencio.github.io/AnaliseDeDados/Problema1/checkpoint3//checkpoint3/2017/07/minha-primeira-postagem.html</link>
-        <guid isPermaLink="true">https://diogoflorencio.github.io/AnaliseDeDados/Problema1/checkpoint3//checkpoint3/2017/07/minha-primeira-postagem.html</guid>
+        <link>http://localhost:4000/AnaliseDeDados/Problema1/checkpoint3/2017/07/minha-primeira-postagem.html</link>
+        <guid isPermaLink="true">http://localhost:4000/AnaliseDeDados/Problema1/checkpoint3/2017/07/minha-primeira-postagem.html</guid>
         
         <category>htmlwidgets</category>
         
@@ -312,8 +312,8 @@ A quantidade de episódios decresce ao longo das temporadas. Deste modo, a prime
 &lt;/div&gt;
 </description>
         <pubDate>Sun, 28 Sep 2014 00:00:00 -0300</pubDate>
-        <link>https://diogoflorencio.github.io/AnaliseDeDados/Problema1/checkpoint3//checkpoint3/2014/09/jekyll-with-knitr.html</link>
-        <guid isPermaLink="true">https://diogoflorencio.github.io/AnaliseDeDados/Problema1/checkpoint3//checkpoint3/2014/09/jekyll-with-knitr.html</guid>
+        <link>http://localhost:4000/AnaliseDeDados/Problema1/checkpoint3/2014/09/jekyll-with-knitr.html</link>
+        <guid isPermaLink="true">http://localhost:4000/AnaliseDeDados/Problema1/checkpoint3/2014/09/jekyll-with-knitr.html</guid>
         
         <category>knitr</category>
         
@@ -348,8 +348,8 @@ A quantidade de episódios decresce ao longo das temporadas. Deste modo, a prime
 
 </description>
         <pubDate>Sat, 27 Sep 2014 20:16:53 -0300</pubDate>
-        <link>https://diogoflorencio.github.io/AnaliseDeDados/Problema1/checkpoint3//checkpoint3/2014/09/welcome-to-jekyll.html</link>
-        <guid isPermaLink="true">https://diogoflorencio.github.io/AnaliseDeDados/Problema1/checkpoint3//checkpoint3/2014/09/welcome-to-jekyll.html</guid>
+        <link>http://localhost:4000/AnaliseDeDados/Problema1/checkpoint3/2014/09/welcome-to-jekyll.html</link>
+        <guid isPermaLink="true">http://localhost:4000/AnaliseDeDados/Problema1/checkpoint3/2014/09/welcome-to-jekyll.html</guid>
         
         
         <category>jekyll</category>
