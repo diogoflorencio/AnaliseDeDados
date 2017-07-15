@@ -1,5 +1,5 @@
 ---
-title: "Problema 3 - Checkpoint 2 AD1 UFCG"
+title: "Problema 3 - Checkpoint 3 AD1 UFCG"
 author: "Diogo Florêncio"
 output: 
     html_notebook
@@ -25,20 +25,20 @@ dados <- dados %>%
   group_by(unidade_academica = UORG_LOTACAO) %>% 
    summarise(total_funcionarios = sum(Outro,Professor.20h,Professor.40h.ou.DE),
               Professor.40h.ou.DE = Professor.40h.ou.DE, 
-              #Professor.20h = Professor.20h,
               idade_mediana = idade_mediana)%>%
   filter(total_funcionarios > 10) %>%
   ungroup()
 ```
-As variáveis escolhidas para o agrupamento foram `total de funcionários`, `Professor.40h.ou.DE` e `idade_mediana`(50 percentil da idade dos funcionários); uma descrição mais detalhada sobre os dados está disponível [aqui](https://github.com/nazareno/tamanhos-da-ufcg). As escalas originais das variáveis apresentam uma diferença significativa em seus valores, deste modo foram normalizadas prevenindo que uma variável domine a análise. 
+As variáveis escolhidas para análise foram `total de funcionários`, `Professor.40h.ou.DE` e `idade_mediana`(50 percentil da idade dos funcionários); uma descrição mais detalhada sobre os dados está disponível [aqui](https://github.com/nazareno/tamanhos-da-ufcg). As escalas originais das variáveis apresentam uma diferença significativa em seus valores, deste modo foram normalizadas normalizadas com scale antes da redução de dimensionalidade, para que as variáveis apresentem efeito ficasse comparável.
 ```{r}
-dados.scaled = dados %>% 
-    mutate_each(funs(log), 2:4) %>% 
-    mutate_each(funs(as.vector(scale(.))), 2:4)
+names(dados)
+glimpse(dados)
+ggpairs(select(dados, -unidade_academica))
 
-dados.scaled %>% 
-    select(-unidade_academica) %>% 
-    ggpairs()
+pr.out <- prcomp(select(dados, -unidade_academica), scale=TRUE)
+
+autoplot(pr.out, data = dados, size = 2,  
+         loadings = FALSE)
 ```
 Pode-se definir o número de `clusters` do agrupamento, por meio do calculo da distância quadrática entre o centro dos clusters, o centro dos dados e os dados. Aqui o centro dos dados é um ponto imaginário na média de todas as variáveis. O gráfico relaciona as variáveis `betweenss` e `totss`, essa proporção pode ser usada para definir um bom valor para o número de `clusters`. Quando ela para de crescer, para de valer à pena aumentar os `clusters`. Neste caso, um bom valor para o número de `clusters`seria 4.
 ```{r}
