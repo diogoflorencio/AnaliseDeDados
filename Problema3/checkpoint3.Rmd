@@ -31,9 +31,13 @@ dados <- dados %>%
 ```
 As variáveis escolhidas para análise foram `total de funcionários`, `Professor.40h.ou.DE` e `idade_mediana`(50 percentil da idade dos funcionários); uma descrição mais detalhada sobre os dados está disponível [aqui](https://github.com/nazareno/tamanhos-da-ufcg). As escalas originais das variáveis apresentam uma diferença significativa em seus valores, deste modo foram normalizadas normalizadas com scale antes da redução de dimensionalidade, para que as variáveis apresentem efeito ficasse comparável.
 ```{r}
-names(dados)
-glimpse(dados)
-ggpairs(select(dados, -unidade_academica))
+dados.scaled = dados %>% 
+    mutate_each(funs(log), 2:4) %>% 
+    mutate_each(funs(as.vector(scale(.))), 2:4)
+
+dados.scaled %>% 
+    select(-unidade_academica) %>% 
+    ggpairs()
 
 pr.out <- prcomp(select(dados, -unidade_academica), scale=TRUE)
 
