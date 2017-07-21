@@ -65,12 +65,8 @@ O gráfico abaixo exibe a relação entre a variância acumulada nos PCs com a v
 ```{r}
 tidy(pr.out, "pcs") %>% 
     ggplot(aes(x = PC, y = cumulative)) + 
-    geom_line() + 
-    geom_point() + 
+    geom_line(color = "blue") + 
+    geom_point(color = "red") + 
     labs(x = "PC's", 
          y = "Percentual de Representatividade")
 ```
-
-
-
-
