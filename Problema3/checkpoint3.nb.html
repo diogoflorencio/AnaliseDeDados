@@ -176,37 +176,14 @@ $(document).ready(function () {
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeSh0aWR5dmVyc2UpIFxuYGBgIn0= -->
-<pre class="r"><code>library(tidyverse) </code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiSW5zdGFsbGVkIFJjcHAgKDAuMTIuMTIpIGRpZmZlcmVudCBmcm9tIFJjcHAgdXNlZCB0byBidWlsZCBkcGx5ciAoMC4xMi4xMSkuXG5QbGVhc2UgcmVpbnN0YWxsIGRwbHlyIHRvIGF2b2lkIHJhbmRvbSBjcmFzaGVzIG9yIHVuZGVmaW5lZCBiZWhhdmlvci5Mb2FkaW5nIHRpZHl2ZXJzZTogZ2dwbG90MlxuTG9hZGluZyB0aWR5dmVyc2U6IHRpYmJsZVxuTG9hZGluZyB0aWR5dmVyc2U6IHRpZHlyXG5Mb2FkaW5nIHRpZHl2ZXJzZTogcmVhZHJcbkxvYWRpbmcgdGlkeXZlcnNlOiBwdXJyclxuTG9hZGluZyB0aWR5dmVyc2U6IGRwbHlyXG5Db25mbGljdHMgd2l0aCB0aWR5IHBhY2thZ2VzIC0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tXG5maWx0ZXIoKTogZHBseXIsIHN0YXRzXG5sYWcoKTogICAgZHBseXIsIHN0YXRzXG4ifQ== -->
-<pre><code>Installed Rcpp (0.12.12) different from Rcpp used to build dplyr (0.12.11).
-Please reinstall dplyr to avoid random crashes or undefined behavior.Loading tidyverse: ggplot2
-Loading tidyverse: tibble
-Loading tidyverse: tidyr
-Loading tidyverse: readr
-Loading tidyverse: purrr
-Loading tidyverse: dplyr
-Conflicts with tidy packages -----------------------------------------------------------------------------------------------------------------------------
-filter(): dplyr, stats
-lag():    dplyr, stats</code></pre>
-<!-- rnb-output-end -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeShicm9vbSkgXG5saWJyYXJ5KGdnZm9ydGlmeSwgcXVpZXRseSA9IFRSVUUpIFxucmVxdWlyZShHR2FsbHksIHF1aWV0bHkgPSBUUlVFKVxuYGBgIn0= -->
-<pre class="r"><code>library(broom) 
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeSh0aWR5dmVyc2UpIFxubGlicmFyeShicm9vbSkgXG5saWJyYXJ5KGdnZm9ydGlmeSwgcXVpZXRseSA9IFRSVUUpIFxucmVxdWlyZShHR2FsbHksIHF1aWV0bHkgPSBUUlVFKVxubGlicmFyeShrbml0ciwgcXVpZXRseSA9IFRSVUUpXG5saWJyYXJ5KGNsdXN0ZXIpXG5cbnRoZW1lX3NldCh0aGVtZV9idygpKVxuYGBgIn0= -->
+<pre class="r"><code>library(tidyverse) 
+library(broom) 
 library(ggfortify, quietly = TRUE) 
-require(GGally, quietly = TRUE)</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiXG5BdHRhY2hpbmcgcGFja2FnZTog4oCYR0dhbGx54oCZXG5cblRoZSBmb2xsb3dpbmcgb2JqZWN0IGlzIG1hc2tlZCBmcm9tIOKAmHBhY2thZ2U6ZHBseXLigJk6XG5cbiAgICBuYXNhXG4ifQ== -->
-<pre><code>
-Attaching package: ‘GGally’
-
-The following object is masked from ‘package:dplyr’:
-
-    nasa</code></pre>
-<!-- rnb-output-end -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeShrbml0ciwgcXVpZXRseSA9IFRSVUUpXG5saWJyYXJ5KGNsdXN0ZXIpXG50aGVtZV9zZXQodGhlbWVfYncoKSlcbmBgYCJ9 -->
-<pre class="r"><code>library(knitr, quietly = TRUE)
+require(GGally, quietly = TRUE)
+library(knitr, quietly = TRUE)
 library(cluster)
+
 theme_set(theme_bw())</code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
@@ -271,18 +248,6 @@ autoplot(pr.out, data = dados, size = 3, colour = 'blue', loadings = FALSE)</cod
 <p>Podemos definir com maior precisão a relação entre os PC’s e as variáveis iniciais, já que os PC’s são funções lineares das variáveis. Os valores na tabela são os coeficientes, deste modo: <em>PC1 = -0.25x<code>idade_mediana</code> + 0.69x<code>Professor.40h.ou.DE</code> + 0.67x<code>total_funcionarios</code></em> <em>PC2 = -0.96x<code>idade_mediana</code> - 0.11x<code>Professor.40h.ou.DE</code> - 0.25x<code>total_funcionarios</code></em> A unidade considerada é em z-scores.</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxudGlkeShwci5vdXQsIFwidmFyaWFibGVzXCIpICU+JSBcbiAgICBmaWx0ZXIoUEMgPD0gMikgJT4lIFxuICAgIHNwcmVhZChjb2x1bW4sIHZhbHVlKVxuYGBgIn0= -->
-<pre class="r"><code>tidy(pr.out, &quot;variables&quot;) %&gt;% 
-    filter(PC &lt;= 2) %&gt;% 
-    spread(column, value)</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-frame-begin eyJtZXRhZGF0YSI6eyJjbGFzc2VzIjpbImRhdGEuZnJhbWUiXSwibmNvbCI6NCwibnJvdyI6Mn0sInJkZiI6Ikg0c0lBQUFBQUFBQUF3dHlpVERpaXVCaVlHQmdZbUJtWVdSZ1lnWXlXWmlBQkNNREN3TW5pSzVnWUdBV0Jva0NNUjlJb2YwSEJqQndZSUFEc1BqK0MySG5Id1Q5RnRqLzd1UkNoY25aRitEcW55bHRlZkRlOU8zK1BaZTJhRnQrbUFFWGZ6cjM2cVNKK3hUM256L3gzS0szTFJiTll0YTh4TnpVWWlCREFHdzVSSkFwd0JuSzRzMU1TVXhKamM5TlRjbE16RXVFQ2dvSEZPV25wUllYNXhmcG1SaGs2T1dYNnJtNFFxV0VTdkpMRW5QaTAwcnpralB6OHhLTE12T0wwU3prTE1vdjE0Tlp5Z3NPRXBBa21FWjFXWEpPWWpITVpUQkJycFRFa2tTOXRDS2dmaUR2SDVvVzl2eUNFcUMxUUUxTW9MQmtSZFBNV0lRbUlGQ2FCM0pKaW01eVJtbGV0cTZoQWNnR3FITVlvYzZET2czT1pvSFl5ZlFmYWhZcjFDeTIxTHowekx4VW1PTnpFcE5TYzZBY1BxQ1h3VDdXS3lqS3pDdUJlUVVvV3F3SERpK1lTSEorRGt3RTdEbUdmd0FJZG5ScE9nSUFBQT09In0= -->
-<div data-pagedtable="false">
-<script data-pagedtable-source type="application/json">
-{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["PC"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["idade_mediana"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["Professor.40h.ou.DE"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["total_funcionarios"],"name":[4],"type":["dbl"],"align":["right"]}],"data":[{"1":"1","2":"-0.2552986","3":"0.6917366","4":"0.6755169","_rn_":"1"},{"1":"2","2":"-0.9621130","3":"-0.1125901","4":"-0.2483186","_rn_":"2"}],"options":{"columns":{"min":{},"max":[10],"total":[4]},"rows":{"min":[10],"max":[10],"total":[2]},"pages":{}}}
-  </script>
-</div>
-<!-- rnb-frame-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <p>Outra evidência sobre a posição dos vetores está na forte correlação linear positiva entre as variáveis <code>Professor.40h.ou.DE</code> e <code>total_funcionarios</code>, como exibe o gráfico de dispersão. De certa maneira, isso significa que ambas têm informação parecida – sabendo o valor de uma para um ponto, sabemos algo sobre o valor da outra, e é possível substituir as duas por uma perdendo apenas um pouco de informação. Isto justifica PC1 explicar as variáveis <code>Professor.40h.ou.DE</code> e <code>total_funcionarios</code>. <code>idade_mediana</code> é menos correlacionada as de mais, dessa maneira PC2 explica praticamente apenas ela.</p>
