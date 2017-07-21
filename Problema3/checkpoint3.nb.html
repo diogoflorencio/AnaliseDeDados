@@ -248,6 +248,11 @@ autoplot(pr.out, data = dados, size = 3, colour = 'blue', loadings = FALSE)</cod
 <p>Podemos definir com maior precisão a relação entre os PC’s e as variáveis iniciais, já que os PC’s são funções lineares das variáveis. Os valores na tabela são os coeficientes, deste modo: <em>PC1 = -0.25x<code>idade_mediana</code> + 0.69x<code>Professor.40h.ou.DE</code> + 0.67x<code>total_funcionarios</code></em> <em>PC2 = -0.96x<code>idade_mediana</code> - 0.11x<code>Professor.40h.ou.DE</code> - 0.25x<code>total_funcionarios</code></em> A unidade considerada é em z-scores.</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxudGlkeShwci5vdXQsIFwidmFyaWFibGVzXCIpICU+JSBcbiAgICBmaWx0ZXIoUEMgPD0gMikgJT4lIFxuICAgIHNwcmVhZChjb2x1bW4sIHZhbHVlKVxuYGBgIn0= -->
+<pre class="r"><code>tidy(pr.out, &quot;variables&quot;) %&gt;% 
+    filter(PC &lt;= 2) %&gt;% 
+    spread(column, value)</code></pre>
+<!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <p>Outra evidência sobre a posição dos vetores está na forte correlação linear positiva entre as variáveis <code>Professor.40h.ou.DE</code> e <code>total_funcionarios</code>, como exibe o gráfico de dispersão. De certa maneira, isso significa que ambas têm informação parecida – sabendo o valor de uma para um ponto, sabemos algo sobre o valor da outra, e é possível substituir as duas por uma perdendo apenas um pouco de informação. Isto justifica PC1 explicar as variáveis <code>Professor.40h.ou.DE</code> e <code>total_funcionarios</code>. <code>idade_mediana</code> é menos correlacionada as de mais, dessa maneira PC2 explica praticamente apenas ela.</p>
