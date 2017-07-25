@@ -15,20 +15,79 @@ editor_options:
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(GGally)
+library(resample)
 theme_set(theme_bw())
 ```
 
 #Os dados
 Os dados compõe uma amostra de dados da atividade global do github, neles contém a contagem de quantas pessoas editaram arquivos para cada extensão de arquivo no período de 2016 à 2017. Estes dados estão disponíveis [aqui](https://raw.githubusercontent.com/nazareno/fpcc2/master/datasets/github-users-committing-filetypes.csv).
 ```{r}
-dados <- read.csv("../dados/github-users-committing-filetypes.csv")
-dados = dados %>%
+amostra <- read.csv("../dados/github-users-committing-filetypes.csv")
+amostra = amostra %>%
         mutate(date = as.Date(paste(month_day,the_month,the_year),format = "%d %m %Y")) %>%
-        mutate(fim_de_semana = (weekdays(as.Date(date)) %in% c("sábado","domingo")))%>%
-        select(file_extension,fim_de_semana, date,users) 
-        filter(file_extension %in% c("html","js"))
+        mutate(week_day = (weekdays(as.Date(date))))%>%
+        select(file_extension,week_day, date,users) 
+
+extension_html = amostra%>%
+        filter(file_extension == "html")
+
+
+extension_js = amostra%>%
+        filter(file_extension == "js")
 
 #(weekdays(as.Date("2017-07-20")) %in% c("sábado","domingo"))
 #html = dados %>% filter(file_extension == "html") #%>% count(dados$file_extension)
 ```
+#Popularidade html
+```{r}
+dist_html_fds = filter(extension_html, week_day %in% c("sábado","domingo")) %>% 
+    bootstrap(median(users), R = 2000) %>% 
+    CI.percentile(probs = c(.025, .975)) #confiança de 0.05 -- Qdo usar bca?
 
+
+dist_html = filter(extension_html, !(week_day %in% c("sábado","domingo"))) %>% 
+    bootstrap(median(users), R = 2000) %>% 
+    CI.percentile(probs = c(.025, .975))
+
+
+df = data.frame(rbind(dist_html,
+                      dist_html_fds))
+
+df$medida = row.names(df) # Como por os nomes da estimativas?
+
+df %>% 
+  ggplot(aes(x = medida, ymin = X2.5., ymax = X97.5.)) + 
+  geom_errorbar(width = .2)
+```
+#Popularidade js
+```{r}
+dist_js_fds = filter(extension_js, week_day %in% c("sábado","domingo")) %>% 
+    bootstrap(median(users), R = 2000) %>% 
+    CI.percentile(probs = c(.025, .975))
+
+dist_js = filter(extension_js, !(week_day %in% c("sábado","domingo"))) %>% 
+    bootstrap(median(users), R = 2000) %>% 
+    CI.percentile(probs = c(.025, .975))
+```
+
+#Variância da popularidade html X js nos fds
+
+```{r}
+
+dist_html_fds = filter(extension_html, week_day %in% c("sábado","domingo")) %>% 
+    bootstrap(var(users), R = 2000) %>% 
+    CI.percentile(probs = c(.025, .975))
+
+dist_js_fds = filter(extension_js, week_day %in% c("sábado","domingo")) %>% 
+    bootstrap(var(users), R = 2000) %>% 
+    CI.percentile(probs = c(.025, .975))
+
+df = data.frame(rbind(dist_html_fds,
+                      dist_js_fds))
+
+df$medida = row.names(df) # Como por os nomes da estimativas?
+
+df %>% 
+  ggplot(aes(x = medida, ymin = X2.5., ymax = X97.5.)) + 
+  geom_errorbar(width = .2)
+```
