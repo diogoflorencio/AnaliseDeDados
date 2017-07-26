@@ -16,11 +16,11 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(GGally)
 library(resample)
+library(dplyr)
 theme_set(theme_bw())
 ```
-
 #Os dados
-Os dados compõe uma amostra de dados da atividade global do github, neles contém a contagem de quantas pessoas editaram arquivos para cada extensão de arquivo no período de 2016 à 2017. Estes dados estão disponíveis [aqui](https://raw.githubusercontent.com/nazareno/fpcc2/master/datasets/github-users-committing-filetypes.csv).
+Os dados compõe uma amostra de dados da atividade global do github, neles contém a contagem de quantas pessoas editaram arquivos para cada extensão de arquivo no período de 2016 à 2017. Estes dados estão disponíveis [aqui](https://raw.githubusercontent.com/nazareno/fpcc2/master/datasets/github-users-committing-filetypes.csv). Para essa análise as extensões consideradas foram `.html` e `.js`. Objetivo dessa análise é estudar a `popularidade` dessas extensões durante a semana e finais de semana.
 ```{r}
 amostra <- read.csv("../dados/github-users-committing-filetypes.csv")
 amostra = amostra %>%
@@ -31,63 +31,70 @@ amostra = amostra %>%
 extension_html = amostra%>%
         filter(file_extension == "html")
 
-
 extension_js = amostra%>%
         filter(file_extension == "js")
-
-#(weekdays(as.Date("2017-07-20")) %in% c("sábado","domingo"))
-#html = dados %>% filter(file_extension == "html") #%>% count(dados$file_extension)
 ```
-#Popularidade html
+#Popularidade de `.html`
+Para mensurar a popularidade da extensão `.html` considerei como parâmetro a quantidade média de edições, quanto mais popular for determinada extensão maior será sua média de edições. Análisando a amostra por meio do método bootstrap estimei valores médios da popularidade de `.html`, durante a semana e aos finais de semana, para toda a população do github. A análise foi realizada com confiança de 95%, o bootstrap gerou 10.000 resamples. Os resultados foram bem expressivos, a media de edições foi estimada entre  
 ```{r}
 dist_html_fds = filter(extension_html, week_day %in% c("sábado","domingo")) %>% 
-    bootstrap(median(users), R = 2000) %>% 
-    CI.percentile(probs = c(.025, .975)) #confiança de 0.05 -- Qdo usar bca?
-
+    bootstrap(mean(users)) %>% 
+    CI.percentile(probs = c(.025, .975)) %>% 
+    as.data.frame()%>%
+    mutate(.html = "fim de semana")
 
 dist_html = filter(extension_html, !(week_day %in% c("sábado","domingo"))) %>% 
-    bootstrap(median(users), R = 2000) %>% 
-    CI.percentile(probs = c(.025, .975))
-
+    bootstrap(mean(users)) %>% 
+    CI.percentile(probs = c(.025, .975)) %>% 
+    as.data.frame()%>%
+    mutate(.html = "semana")
 
 df = data.frame(rbind(dist_html,
                       dist_html_fds))
+df
+```
 
-df$medida = row.names(df) # Como por os nomes da estimativas?
+```{r}
+
 
 df %>% 
-  ggplot(aes(x = medida, ymin = X2.5., ymax = X97.5.)) + 
+  ggplot(aes(x = .html, ymin = X2.5., ymax = X97.5.)) + 
   geom_errorbar(width = .2)
 ```
+
 #Popularidade js
 ```{r}
 dist_js_fds = filter(extension_js, week_day %in% c("sábado","domingo")) %>% 
     bootstrap(median(users), R = 2000) %>% 
-    CI.percentile(probs = c(.025, .975))
+    CI.percentile(probs = c(.025, .975))%>% 
+    as.data.frame()%>%
+    mutate(medida = "fim de semana")
 
 dist_js = filter(extension_js, !(week_day %in% c("sábado","domingo"))) %>% 
     bootstrap(median(users), R = 2000) %>% 
-    CI.percentile(probs = c(.025, .975))
+    CI.percentile(probs = c(.025, .975))%>% 
+    as.data.frame()%>%
+    mutate(medida = "semana")
 ```
-
 #Variância da popularidade html X js nos fds
-
 ```{r}
 
 dist_html_fds = filter(extension_html, week_day %in% c("sábado","domingo")) %>% 
     bootstrap(var(users), R = 2000) %>% 
-    CI.percentile(probs = c(.025, .975))
+    CI.percentile(probs = c(.025, .975))%>% 
+    as.data.frame()%>%
+    mutate(variancia = "html")
 
 dist_js_fds = filter(extension_js, week_day %in% c("sábado","domingo")) %>% 
     bootstrap(var(users), R = 2000) %>% 
-    CI.percentile(probs = c(.025, .975))
+    CI.percentile(probs = c(.025, .975))%>% 
+    as.data.frame()%>%
+    mutate(variancia = "js")
 
 df = data.frame(rbind(dist_html_fds,
                       dist_js_fds))
 
-df$medida = row.names(df) # Como por os nomes da estimativas?
-
 df %>% 
-  ggplot(aes(x = medida, ymin = X2.5., ymax = X97.5.)) + 
+  ggplot(aes(x = variancia, ymin = X2.5., ymax = X97.5.)) + 
   geom_errorbar(width = .2)
 ```
