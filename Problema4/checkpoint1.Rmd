@@ -35,66 +35,105 @@ extension_js = amostra%>%
         filter(file_extension == "js")
 ```
 #Popularidade de `.html`
-Para mensurar a popularidade da extensão `.html` considerei como parâmetro a quantidade média de edições, quanto mais popular for determinada extensão maior será sua média de edições. Análisando a amostra por meio do método bootstrap estimei valores médios da popularidade de `.html`, durante a semana e aos finais de semana, para toda a população do github. A análise foi realizada com confiança de 95%, o bootstrap gerou 10.000 resamples. Os resultados foram bem expressivos, a media de edições foi estimada entre  
+Para mensurar a popularidade da extensão `.html` considerei como parâmetro a quantidade média de edições, quanto mais popular for determinada extensão maior será sua média de edições. Análisando a amostra por meio do método bootstrap estimei valores médios da popularidade de `.html`, durante a semana e aos finais de semana, para toda a população do github. A análise foi realizada com confiança de 95%, o bootstrap gerou 10.000 reamostragens. Os resultados foram bem expressivos, a media de edições durante a semana foi estimada em [4504.764 ;	4635.792] e aos finais [2878.936 ; 3032.271].   
 ```{r}
 dist_html_fds = filter(extension_html, week_day %in% c("sábado","domingo")) %>% 
     bootstrap(mean(users)) %>% 
     CI.percentile(probs = c(.025, .975)) %>% 
-    as.data.frame()%>%
-    mutate(.html = "fim de semana")
+    as.data.frame()%>% 
+    mutate(week_day = "fim de semana")
 
 dist_html = filter(extension_html, !(week_day %in% c("sábado","domingo"))) %>% 
     bootstrap(mean(users)) %>% 
     CI.percentile(probs = c(.025, .975)) %>% 
     as.data.frame()%>%
-    mutate(.html = "semana")
+    mutate(week_day = "semana")
 
 df = data.frame(rbind(dist_html,
                       dist_html_fds))
 df
 ```
-
+##Resultados
+A diferença de popularidade durante a semana é significativamente maior do que aos finais para `.html`. Por meio da razão entre os pontos médios dos intervalos estimados para popularidade (4635,792/3032.271 = 1,5288), pode-se dizer que durante a semana a popularidade de `.html` é em torno de 1.5 vezes maior do que aos finais de semana. Graficamente essa diferença de popularidade é bem significativa.
 ```{r}
-
-
 df %>% 
-  ggplot(aes(x = .html, ymin = X2.5., ymax = X97.5.)) + 
+  ggplot(aes(x = week_day, ymin = X2.5., ymax = X97.5.)) + 
   geom_errorbar(width = .2)
 ```
-
-#Popularidade js
+Este resultado é relevante para determinar em quais contextos html é mais utilizado. Como durante a semana html é bem mais popular podemos suspeitar que a extensão é mais utilizada em ambientes de trabalho, ou seja, talvez html não seja uma extensão de fim de semana normalmente usada em projetos pessoais ou coisas do tipo.  
+#Popularidade `.js`
+Conforme feito para extensão anterior, o parâmetro considerado como índice de popularidade para `.js` foi a quantidade média de edições. Análisando a amostra por meio do método bootstrap estimei valores médios da popularidade, durante a semana e aos finais de semana, para toda a população do github. A análise foi realizada com a mesma confiança da anterior 95%, o bootstrap também gerou 10.000 reamostragens. A média de edições durante a semana foi estimada em [6925.225 ; 7141.665] e aos finais [4085.395 ; 4304.063].
 ```{r}
 dist_js_fds = filter(extension_js, week_day %in% c("sábado","domingo")) %>% 
-    bootstrap(median(users), R = 2000) %>% 
+    bootstrap(mean(users)) %>% 
     CI.percentile(probs = c(.025, .975))%>% 
     as.data.frame()%>%
-    mutate(medida = "fim de semana")
+    mutate(week_day = "fim de semana")
 
 dist_js = filter(extension_js, !(week_day %in% c("sábado","domingo"))) %>% 
-    bootstrap(median(users), R = 2000) %>% 
+    bootstrap(mean(users)) %>% 
     CI.percentile(probs = c(.025, .975))%>% 
     as.data.frame()%>%
-    mutate(medida = "semana")
+    mutate(week_day = "semana")
+
+df = data.frame(rbind(dist_js,
+                      dist_js_fds))
+df
 ```
-#Variância da popularidade html X js nos fds
+##Resultados
+A diferença de popularidade durante a semana é significativamente maior do que aos finais para `.js`. Novamente, por meio da razão entre os pontos médios dos intervalos estimados para popularidade (7141.665/4304.063 = 1,6592), pode-se dizer que durante a semana a popularidade de `.js` é em torno de 1.6 vezes maior do que aos finais de semana. Graficamente essa diferença de popularidade é bem significativa.
+```{r}
+df %>% 
+  ggplot(aes(x = week_day, ymin = X2.5., ymax = X97.5.)) + 
+  geom_errorbar(width = .2)
+```
+Este resultado é relevante para determinar em quais contextos js é mais utilizado. Mesmo sendo bem mais popular durante a semana js ainda apresenta grande popularidade aos finais de semana quando comparado com html por exemplo, graficamente essa diferença de popularidade é bem significativa.
+```{r}
+dist_html_fds = filter(extension_html, week_day %in% c("sábado","domingo")) %>% 
+    bootstrap(mean(users)) %>% 
+    CI.percentile(probs = c(.025, .975)) %>% 
+    as.data.frame()%>% 
+    mutate(popularidade = "html")
+
+dist_js_fds = filter(extension_js, week_day %in% c("sábado","domingo")) %>% 
+    bootstrap(mean(users)) %>% 
+    CI.percentile(probs = c(.025, .975))%>% 
+    as.data.frame()%>%
+    mutate(popularidade = "js")
+
+df = data.frame(rbind(dist_html_fds,
+                      dist_js_fds))
+df %>% 
+  ggplot(aes(x = popularidade, ymin = X2.5., ymax = X97.5.)) + 
+  geom_errorbar(width = .2)
+```
+Por tanto, podemos concluir que js é popular tanto aos finais de semana como durante a semana. Com isso, podemos inferir que js é utilizado tanto em contextos como ambientes de trabalho, como em projetos pessoais, estudos e coisas do gênero. Essa popularidade pode ser justificada também atrávez da grande quantidade de frameworks construidos em js.
+#Variância da popularidade nos finais de semana `.html` X `.js`
+A diferença para a variância na popularidade das duas extensões nos finais de semana também é bastante significativa, a estimativa da variância para html foi [158198.2 ; 279791.3] e para js [304905.5 ; 552105.6]. Como em todas as análises anteriores, o nível de confiança considerado foi 95%, o bootstrap também gerou 10.000 reamostragens.
 ```{r}
 
 dist_html_fds = filter(extension_html, week_day %in% c("sábado","domingo")) %>% 
-    bootstrap(var(users), R = 2000) %>% 
+    bootstrap(var(users)) %>% 
     CI.percentile(probs = c(.025, .975))%>% 
     as.data.frame()%>%
     mutate(variancia = "html")
 
 dist_js_fds = filter(extension_js, week_day %in% c("sábado","domingo")) %>% 
-    bootstrap(var(users), R = 2000) %>% 
+    bootstrap(var(users)) %>% 
     CI.percentile(probs = c(.025, .975))%>% 
     as.data.frame()%>%
     mutate(variancia = "js")
 
 df = data.frame(rbind(dist_html_fds,
                       dist_js_fds))
+df
 
 df %>% 
   ggplot(aes(x = variancia, ymin = X2.5., ymax = X97.5.)) + 
   geom_errorbar(width = .2)
 ```
+##Resultados
+A variância na popularidade de js é em torno de 1.4 vezes maior do que html. A relevância deste resultado evidência que pessoas utilizam ocasionalmente js nos fim de semana, oque pode sugerir que realmente quem programa aos finais de semana trabalha em projetos ocasionais, estudos, etc.
+
+
+
