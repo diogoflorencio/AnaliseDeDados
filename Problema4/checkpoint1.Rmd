@@ -3,7 +3,7 @@ title: "Problema 4 - Checkpoint 1"
 author: "Diogo Florêncio"
 output: 
   html_notebook:
-    theme: readable
+    theme: lumen
     fig_width: 7
     toc: true
     toc_float: true
@@ -14,6 +14,7 @@ editor_options:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
+library(highcharter)
 library(GGally)
 library(resample)
 library(dplyr)
@@ -58,10 +59,13 @@ A diferença de popularidade durante a semana é significativamente maior do que
 ```{r}
 df %>% 
   ggplot(aes(x = week_day, ymin = X2.5., ymax = X97.5.)) + 
-  geom_errorbar(width = .2)
+  geom_errorbar(width = .2) +
+  ggtitle("Estimativa de popularidade para extensão .html")
 ```
 Este resultado é relevante para determinar em quais contextos html é mais utilizado. Como durante a semana html é bem mais popular podemos suspeitar que a extensão é mais utilizada em ambientes de trabalho, ou seja, talvez html não seja uma extensão de fim de semana normalmente usada em projetos pessoais ou coisas do tipo.  
+
 #Popularidade `.js`
+
 Conforme feito para extensão anterior, o parâmetro considerado como índice de popularidade para `.js` foi a quantidade média de edições. Análisando a amostra por meio do método bootstrap estimei valores médios da popularidade, durante a semana e aos finais de semana, para toda a população do github. A análise foi realizada com a mesma confiança da anterior 95%, o bootstrap também gerou 10.000 reamostragens. A média de edições durante a semana foi estimada em [6925.225 ; 7141.665] e aos finais [4085.395 ; 4304.063].
 ```{r}
 dist_js_fds = filter(extension_js, week_day %in% c("sábado","domingo")) %>% 
@@ -85,7 +89,8 @@ A diferença de popularidade durante a semana é significativamente maior do que
 ```{r}
 df %>% 
   ggplot(aes(x = week_day, ymin = X2.5., ymax = X97.5.)) + 
-  geom_errorbar(width = .2)
+  geom_errorbar(width = .2)+
+  ggtitle("Estimativa de popularidade para extensão .js")
 ```
 Este resultado é relevante para determinar em quais contextos js é mais utilizado. Mesmo sendo bem mais popular durante a semana js ainda apresenta grande popularidade aos finais de semana quando comparado com html por exemplo, graficamente essa diferença de popularidade é bem significativa.
 ```{r}
@@ -105,10 +110,13 @@ df = data.frame(rbind(dist_html_fds,
                       dist_js_fds))
 df %>% 
   ggplot(aes(x = popularidade, ymin = X2.5., ymax = X97.5.)) + 
-  geom_errorbar(width = .2)
+  geom_errorbar(width = .2)+
+  ggtitle("Comparação de popularidade nos finais de semana (.html X .js)")
 ```
 Por tanto, podemos concluir que js é popular tanto aos finais de semana como durante a semana. Com isso, podemos inferir que js é utilizado tanto em contextos como ambientes de trabalho, como em projetos pessoais, estudos e coisas do gênero. Essa popularidade pode ser justificada também atrávez da grande quantidade de frameworks construidos em js.
+
 #Variância da popularidade nos finais de semana `.html` X `.js`
+
 A diferença para a variância na popularidade das duas extensões nos finais de semana também é bastante significativa, a estimativa da variância para html foi [158198.2 ; 279791.3] e para js [304905.5 ; 552105.6]. Como em todas as análises anteriores, o nível de confiança considerado foi 95%, o bootstrap também gerou 10.000 reamostragens.
 ```{r}
 
@@ -130,10 +138,8 @@ df
 
 df %>% 
   ggplot(aes(x = variancia, ymin = X2.5., ymax = X97.5.)) + 
-  geom_errorbar(width = .2)
+  geom_errorbar(width = .2)+
+  ggtitle("Comparação de variância da popularidade nos finais de semana (.html X .js)")
 ```
 ##Resultados
 A variância na popularidade de js é em torno de 1.4 vezes maior do que html. A relevância deste resultado evidência que pessoas utilizam ocasionalmente js nos fim de semana, oque pode sugerir que realmente quem programa aos finais de semana trabalha em projetos ocasionais, estudos, etc.
-
-
-
