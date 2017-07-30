@@ -1,0 +1,113 @@
+---
+title: "Problema 4 - Checkpoint 3"
+author: "Diogo Florêncio"
+output: 
+  html_notebook:
+    theme: lumen
+    fig_width: 7
+    toc: true
+    toc_float: true
+editor_options: 
+  chunk_output_type: inline
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(highcharter)
+library(dplyr)
+library(GGally)
+library(lubridate)
+library(resample)
+library(dplyr)
+theme_set(theme_bw())
+```
+#Os dados
+Os dados compõe uma amostra de dados da atividade global do github, neles contém a contagem de quantas pessoas editaram arquivos para cada extensão de arquivo no período de 2016 à 2017. Estes dados estão disponíveis [aqui](https://raw.githubusercontent.com/nazareno/fpcc2/master/datasets/github-users-committing-filetypes.csv). Para essa análise as extensões consideradas foram `.java` e `.py`. Objetivo dessa análise é estudar a `popularidade` dessas extensões durante a semana e aos finais de semana.
+```{r}
+amostra <- read.csv("../dados/github-users-committing-filetypes.csv")
+
+#formatando dados para data
+amostra = amostra %>%
+        mutate(date = as.Date(paste(month_day,the_month,the_year),format = "%d %m %Y")) %>%
+        mutate(week_day = (weekdays(as.Date(date))))%>%
+        select(file_extension, week_day, date, users) 
+```
+#Como se comporta a popularidade de java e python durante a semana? No periodo de 2016 à 2017.
+Para responder essa pergunta vamos estimar a popularidade das linguagens para cada ano  e depois comparar suas proporções individualmente. O parâmetro utilizado para mensurar a popularidade de cada linguagem foi a quantidade média de edições. A amostra descreve edições em arquivos até maio de 2017, a fim equiparar a análise considerei apenas o periodo de janeiro à abril de cada ano.  
+```{r}
+#filtrando dados de interesse
+java_semana_2016 = filter(amostra, file_extension == "java", 
+                          !(week_day %in% c("sábado","domingo")), 
+                          month(date) %in% c("1","2","3","4"),
+                          year(date) == "2016") 
+
+java_semana_2017 = filter(amostra, file_extension == "java", 
+                          !(week_day %in% c("sábado","domingo")), 
+                          month(date) %in% c("1","2","3","4"),
+                          year(date) == "2017") 
+
+py_semana_2016 = filter(amostra, file_extension == "py", 
+                          !(week_day %in% c("sábado","domingo")), 
+                          month(date) %in% c("1","2","3","4"),
+                          year(date) == "2016") 
+
+py_semana_2017 = filter(amostra, file_extension == "py", 
+                          !(week_day %in% c("sábado","domingo")), 
+                          month(date) %in% c("1","2","3","4"),
+                          year(date) == "2017")
+```
+###Popularidade de Java
+Análisando a amostra por meio do método bootstrap estimei valores médios da popularidade de `java`, durante a semana para cada ano. A análise foi realizada com confiança de 95%, o bootstrap gerou 10.000 reamostragens. Os resultados foram bem expressivos, a média de edições durante a semana foi estimada em [3912.227 ; 4066.108] para 2016 e [3332.427 ; 3488.978] para 2017.
+```{r}
+#gerando a estimativa por meio de bootstrap
+estimativa_java_2016 =  bootstrap(java_semana_2016, mean(users)) %>% 
+                    CI.percentile(probs = c(.025, .975)) %>% 
+                    as.data.frame() %>%
+                    mutate(year = "2016")
+ 
+#gerando a estimativa por meio de bootstrap
+estimativa_java_2017 =  bootstrap(java_semana_2017, mean(users)) %>% 
+                    CI.percentile(probs = c(.025, .975)) %>% 
+                    as.data.frame() %>%
+                    mutate(year = "2017")
+
+#plotando estimativa de popularidade por ano 
+data.frame(rbind(estimativa_java_2016, estimativa_java_2017)) %>% 
+  ggplot(aes(x = year, ymin = X2.5., ymax = X97.5., color = year)) + 
+  geom_errorbar(width = .2)+
+  ggtitle("Popularidade de java")
+```
+A diferença de popularidade no periodo de interesse é sigficativa, a estimativa aponta uma queda na popularidade de `java`. Este resultado é relavante pois sugere que os desenvolvedores, por algum motivo, estejam trocando `java` por outras tecnologias.
+
+###Popularidade de Python
+
+```{r}
+#gerando a estimativa por meio de bootstrap
+py_semana_2016 =  bootstrap(py_semana_2016, mean(users)) %>% 
+                    CI.percentile(probs = c(.025, .975)) %>% 
+                    as.data.frame() %>%
+                    mutate(year = "2016")
+
+#gerando a estimativa por meio de bootstrap
+py_semana_2017 =  bootstrap(py_semana_2017, mean(users)) %>% 
+                    CI.percentile(probs = c(.025, .975)) %>% 
+                    as.data.frame() %>%
+                    mutate(year = "2017")
+
+#plotando estimativa de popularidade por ano 
+data.frame(rbind(py_semana_2016, py_semana_2017)) %>% 
+  ggplot(aes(x = year, ymin = X2.5., ymax = X97.5., color = year)) + 
+  geom_errorbar(width = .2)+
+  ggtitle("Popularidade de python")
+```
+
+
+```{r}
+cre_java = data.frame(cre_java = 1:1000) %>% # faremos 1000 vezes
+            group_by(cre_java) %>% 
+            do(data.frame(media = sample(java_semana_2016$users, 100) %>% mean()))
+```
+
+
+finais de semana? correlação de crescimento ? dia da semana mais popular.
+
