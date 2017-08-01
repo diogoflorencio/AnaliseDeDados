@@ -53,7 +53,7 @@ py_2017 = filter(amostra, file_extension == "py",
                           year(date) == "2017")
 ```
 ###Popularidade de Java
-Análisando a amostra por meio do método bootstrap estimei valores médios da popularidade de `java`, durante a semana para cada ano. A análise foi realizada com confiança de 95%, o bootstrap gerou 10.000 reamostragens. Os resultados foram bem expressivos, a média de edições durante a semana foi estimada em [3372.143 ; 3661.223] para 2016 e [2875.486 ; 3136.426] para 2017.
+Análisando a amostra por meio do método bootstrap estimei valores médios da popularidade de `java`, durante a semana para cada ano. A análise foi realizada com confiança de 95%, o bootstrap gerou 10.000 reamostragens. Os resultados foram bem expressivos, a média de edições foi estimada em [3372.143 ; 3661.223] para 2016 e [2875.486 ; 3136.426] para 2017.
 ```{r}
 #gerando a estimativa por meio de bootstrap
 estimativa_java_2016 =  bootstrap(java_2016, mean(users)) %>% 
@@ -77,7 +77,7 @@ A diferença de popularidade no periodo de interesse é sigficativa, a estimativ
 
 ###Popularidade de Python
 
-Análisando a amostra por meio do método bootstrap estimei valores médios da popularidade de `python`, durante a semana para cada ano. A análise também foi realizada com confiança de 95%, o bootstrap gerou 10.000 reamostragens. A média de edições durante a semana foi estimada em 4223.511 ; 4626.306] para 2016 e [3803.883 ; 4177.364] para 2017.
+Análisando a amostra por meio do método bootstrap estimei valores médios da popularidade de `python`, durante a semana para cada ano. A análise também foi realizada com confiança de 95%, o bootstrap gerou 10.000 reamostragens. A média de edições foi estimada em 4223.511 ; 4626.306] para 2016 e [3803.883 ; 4177.364] para 2017.
 ```{r}
 #gerando a estimativa por meio de bootstrap
 estimativa_py_2016 =  bootstrap(py_2016, mean(users)) %>% 
@@ -97,9 +97,10 @@ data.frame(rbind(estimativa_py_2016, estimativa_py_2017)) %>%
   geom_errorbar(width = .2)+
   ggtitle("Popularidade de python 2016 - 2017")
 ```
-#Qual linguagem teve a maior queda de popularidade?
-Para responder essa pergunta
+A diferença de popularidade no periodo de interesse não é muito siginificante, pois os intervalos estimados tem limites proximos, ainda assim a estimativa aponta uma queda na popularidade de `python`, mesmo que seja pequena. Este resultado é relavante pois pode indicar uma tendência dos desenvolvedores em trocar `python` por outras tecnologias.
 
+#Qual linguagem teve a maior queda de popularidade?
+Para responder essa pergunta estimei a estatística *p^ = media[media(2016)/media(2017)]*, que seria a razão entre os intervalos estimados para popularidade de cada linguagem para 2016 e 2017.
 ```{r}
 # distribuição amostral da popularidade de java com 1000 elementos
 dist_popularidade_java = data.frame(dist_popularidade_java = 1:1000) %>% 
@@ -131,6 +132,8 @@ data.frame(rbind(dif_popularidade_java, dif_popularidade_py)) %>%
   ggtitle("Diferença de popularidade 2016 - 2017")
 
 ```
+
+
 #Existe alguma correlação entre a popularidade das linguagens?
 
 
@@ -150,7 +153,7 @@ cor_java_python = bootstrap(popularidade_java_python, cor(media_java, media_py, 
 #plotando correlação entre a popularidade de java e python 
 data.frame(cor_java_python) %>% 
   ggplot(aes(x = "correlação", ymin = X2.5., ymax = X97.5.), color= "green") + 
-  geom_errorbar(width = .2)+
+  geom_errorbar(width = .2) +
   ggtitle("Correlação de popularidade 2016 - 2017")
 ```
 
