@@ -21,7 +21,6 @@ library(coin)
 theme_set(theme_bw())
 ```
 #Os dados
-
 Os dados compõe uma amostra de dados da atividade global do github, neles contém a contagem de quantas pessoas editaram arquivos para cada extensão de arquivo no período de 2016 à 2017. Estes dados estão disponíveis [aqui](https://raw.githubusercontent.com/nazareno/fpcc2/master/datasets/github-users-committing-filetypes.csv). Objetivo dessa análise  é aprender a aplicar testes de hipótese, interpretar o p-valor e relacionar os resultados de testes de hipótese e ICs.
 ```{r}
 amostra <- read.csv("../dados/github-users-committing-filetypes.csv")
@@ -106,12 +105,4 @@ oneway_test(users ~ as.factor(year(date)),
 Avaliando o `p-valor` estimado, a diferença observada na amostra é significativamente improvável na `hipótese nula`, logo `H0` é rejeitada. Com isso pode-se concluir que existe um indicativo de associação entre popularidade e ano; e que a diferença observada é significativa. Entre outras palavras existe um indicativo de que há uma diferença significativa na popularidade de `java` entre 2016 e 2017. 
 
 #Comparando os Resultados
-
-
-
-
-
-
-
-
-
+Tanto a análise por `teste de hipótese` quanto  por `intervalo de confiança` apontam para uma diferença na popularidade de `java` entre 2016 e 2017. A principal diferença entre os métodos de análise é: `intervalo de confiança` não informa o quanto significativa (em termos de tamanho) é essa diferença, isso implica em certa imprecisão quanto a relevância do resultado obtido. Por outro lado, o método de análise por `intervalo de confiança` estima um intervalo para estatística de interesse, com isso é possível perceber quão significativa (em termos de tamanho) é essa diferença, permitindo uma conclusão bem mais precisa sobre a relevância do resultado.
