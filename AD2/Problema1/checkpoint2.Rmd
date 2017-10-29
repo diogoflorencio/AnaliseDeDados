@@ -14,11 +14,15 @@ amostra <- read.csv("../dados/dadosCEAP.csv",encoding="UTF-8")
 ```
 
 ```{r}
-uso_ceap = amostra %>% 
-  group_by(sgPartido) %>% 
+uso_ceap = amostra %>%
+  group_by(sgPartido) %>%
   summarise(qtd_CEAP = n()) 
 
-uso_ceap%>% 
+uso_ceapW = uso_ceap %>% top_n(uso_ceap$qtd_CEAP, n = -10)
+
+
+
+uso_ceapW%>% 
   ggplot(aes(x = sgPartido, y = qtd_CEAP, color = sgPartido)) + 
   geom_point(size = 6) + 
   theme_classic() +
