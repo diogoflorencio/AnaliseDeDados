@@ -1,0 +1,64 @@
+---
+title: "checkpoint2"
+author: "Diogo Florêncio"
+date: "26 de outubro de 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyr)
+library(dplyr)
+library(ggplot2)
+amostra <- read.csv("../dados/dadosCEAP.csv",encoding="UTF-8")
+```
+
+```{r}
+uso_ceap = amostra %>% 
+  group_by(sgPartido) %>% 
+  summarise(qtd_CEAP = n()) 
+
+uso_ceap%>% 
+  ggplot(aes(x = sgPartido, y = qtd_CEAP, color = sgPartido)) + 
+  geom_point(size = 6) + 
+  theme_classic() +
+  ggtitle("Partido x Uso do CEAP")
+```
+
+```{r}
+valor_ceap = amostra %>% 
+  group_by(sgPartido) %>% 
+  summarise(valor = sum(valorDocumento))
+
+valor_ceap%>% 
+  ggplot(aes(x = sgPartido, y = valor, color = sgPartido)) + 
+  geom_point(size = 6) + 
+  theme_classic() +
+  ggtitle("Partido x Valor em R$")
+```
+
+```{r}
+despesas_mais_comuns = amostra %>% 
+  group_by(tipoDespesa) %>% 
+  summarise(qtd = n())
+```
+
+```{r}
+despesas_mais_caras = amostra %>% 
+  group_by(tipoDespesa) %>% 
+  summarise(valor = sum(valorDocumento))
+```
+
+```{r}
+estados_maiorUso_ceap = amostra %>% 
+  group_by(sgUF) %>% 
+  summarise(qtd = n())
+```
+
+```{r}
+estados_maiorGasto_ceap =  amostra %>% 
+  group_by(sgUF) %>% 
+  summarise(valor = sum(valorDocumento))
+```
+
+
