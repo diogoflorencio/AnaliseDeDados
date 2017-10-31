@@ -1,0 +1,135 @@
+---
+title: "Análise de Gastos dos Deputados"
+author: "Diogo Florêncio"
+date: "26 de outubro de 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(ggplot2)
+options(scipen = 4)
+amostra <- read_csv("../dados/dadosCEAP.csv")
+limite_mensal <- read_csv("../dados/limiteMensalCEAP.csv")
+```
+Por meio dos dados coletados da Câmara dos Deputados iremos determinar como a CEAP foi utilizada ao longo do último ano. Quais partidos e deputados mais a utilizam? Quais despesas são mais comuns? Dentre outras coisas. A CEAP (cota para o exercício da atividade parlamentar) é uma cota única mensal destinada a custear os gastos dos deputados exclusivamente vinculados ao exercício da atividade parlamentar. Exemplos de despesa desse tipo são: passagens aéreas, telefonia, serviços postais, manutenção de escritórios de apoio à atividade parlamentar, assinatura de publicações, fornecimento de alimentação ao parlamentar, hospedagem, outras despesas com locomoção, contemplando locação ou fretamento de aeronaves, veículos automotores e embarcações, serviços de táxi, pedágio e estacionamento e passagens terrestres. Os dados desta análise estão disponíveis [aqui](https://instructure-uploads.s3.amazonaws.com/account_70000000000010/attachments/56674660/dadosCEAP.csv.zip?response-content-disposition=attachment%3B%20filename%3D%22dadosCEAP.csv.zip%22%3B%20filename%2A%3DUTF-8%27%27dadosCEAP.csv.zip&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAJFNFXH2V2O7RPCAA%2F20171031%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20171031T133839Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=27666f57686790fe29da7e4191daa763f081963cb1ff4760eba1e9c3c29fdd02).
+
+# Quais os partidos que mais fazem uso da CEAP? Quais os partidos que menos fazem uso da CEAP?
+
+```{r}
+uso_ceap <- amostra %>% filter(valorDocumento > 0) %>%
+  group_by(sgPartido) %>%
+  summarise(qtd_CEAP = n()) 
+
+uso_ceap %>% 
+  ggplot(aes(x = reorder(sgPartido, qtd_CEAP), y = qtd_CEAP, fill = qtd_CEAP)) +  
+  geom_bar(colour="black", stat="identity") +
+  coord_flip() +
+  xlab("Uso da CEAP") + ylab("Partidos") +
+  ggtitle("Partidos que mais utilizam a CEAP")
+```
+
+#Quais os partidos que mais gastam por meio da CEAP?
+
+```{r}
+gasto_ceap <- amostra %>% 
+  group_by(sgPartido) %>% 
+  summarise(gasto = sum(valorDocumento))
+
+gasto_ceap %>% 
+  ggplot(aes(x = reorder(sgPartido, gasto), y = gasto, fill = gasto)) +  
+  geom_bar(colour="black", stat="identity") +
+  coord_flip() +
+  xlab("Uso da CEAP") + ylab("Partidos") +
+  ggtitle("Partidos com maior gasto na CEAP")
+```
+
+
+# Quais as despesas mais frequentes na CEAP?
+
+```{r}
+despesas_comuns <- amostra %>% 
+  group_by(tipoDespesa) %>% 
+  summarise(qtd = n())
+
+despesas_comuns %>% 
+  top_n(despesas_comuns$qtd, n = 5) %>% 
+  ggplot(aes(x = reorder(tipoDespesa, qtd), y = qtd, fill = tipoDespesa)) +  
+  geom_bar(colour="black", stat="identity") +
+  ylab("Gastos - R$") + xlab("Partidos") + 
+  ggtitle("Despesas mais frequentes")
+```
+
+#Quais as despesas mais caras?
+
+```{r}
+despesas_mais_caras = amostra %>% 
+  group_by(tipoDespesa) %>% 
+  summarise(valor = sum(valorDocumento))
+
+despesas_mais_caras%>% 
+  top_n(despesas_mais_caras$valor, n = 5) %>% 
+  ggplot(aes(x = tipoDespesa, y = valor)) +  
+  geom_bar(colour="black", stat="identity") +
+  coord_flip() +
+  ylab("Gastos - R$") + xlab("Partidos") + 
+  ggtitle("Despesas mais caras")
+```
+
+#Levando em conta o estado pelo qual o deputado se elegeu, quais os estados que mais fazem uso da CEAP? Quais os que menos fazem uso? Mesmas perguntas considerando gastos em R$. Por que você acha isso?
+
+```{r}
+estados_uso_ceap = amostra %>% 
+  group_by(sgUF) %>% 
+  summarise(qtd = n(),
+            valor = sum(valorDocumento))
+
+estados_uso_ceap %>% 
+ # top_n(gasto_ceap$gasto, n = 7) %>% 
+  ggplot(aes(x = qtd, y = valor, color = sgUF)) +  
+  geom_point(size = 3) + 
+  theme_classic() +
+  xlab("Uso da CEAP") + ylab("Partidos") +
+  ggtitle("Partidos que menos utilizam a CEAP")
+```
+
+#Quais os parlamentares que mais gastam com CEAP e quais os que menos gastam?
+
+```{r}
+parlamentares = amostra %>% 
+  group_by(idCadastro,nomeParlamentar,sgPartido,UF = sgUF) %>% 
+  summarise(valor = sum(valorDocumento))
+```
+
+#Existe correlação entre a quantidade de gastos no exterior e o valor restituído da CEAP? 
+
+```{r}
+gastos_exterior <- amostra %>% filter(tipoDocumento == 2)
+
+valores_restituidos <- amostra %>% filter(valorDocumento <= 0)
+
+cor(gastos_exterior,valores_restituidos)
+
+cor()
+```
+
+#Quais os estados cujos deputados gastam mais no exterior? Quais os estados cujos deputados gastam menos no exterior?
+
+```{r}
+estados_uso_ceap = amostra %>% filter(tipoDocumento == 2) %>%
+  group_by(sgUF) %>% 
+  summarise(valor = sum(valorDocumento))
+
+```
+
+#Quais os deputados que mais ultrapassam o limite de CEAP do seu estado?
+
+```{r}
+x <- merge(parlamentares,limite_mensal) 
+```
+
+
+
+
+
