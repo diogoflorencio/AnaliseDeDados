@@ -15,7 +15,7 @@ editor_options:
 library(tidyr)
 library(dplyr)
 library(ggplot2)
-dados <- read.csv("series_from_imdb.csv",encoding="UTF-8")
+dados <- read.csv("../dados/series_from_imdb.csv",encoding="UTF-8")
 ```
 #Qual a melhor série?
 A melhor série deve ter episódios bem avaliados, além de manter regularidade na avaliação. Seguindo esses critérios, o gráfico exibe a relacação entre mediana e variância para nota dos episódios de cada série. Quanto mais acima a série está melhor é sua avaliação, quanto mais a esquerda está mais regular é.

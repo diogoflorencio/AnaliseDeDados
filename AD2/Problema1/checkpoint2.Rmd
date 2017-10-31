@@ -1,5 +1,5 @@
 ---
-title: "checkpoint2"
+title: "Análise de Gastos de Deputados"
 author: "Diogo Florêncio"
 date: "26 de outubro de 2017"
 output: html_document
@@ -7,44 +7,80 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-library(tidyr)
-library(dplyr)
+library(tidyverse)
+library(highcharter)
 library(ggplot2)
-amostra <- read.csv("../dados/dadosCEAP.csv",encoding="UTF-8")
+options(scipen = 4)
+amostra <- read_csv("../dados/dadosCEAP.csv")
 ```
 
+# Quais os partidos que mais fazem uso da CEAP?
+
 ```{r}
-uso_ceap = amostra %>%
+uso_ceap <- amostra %>% filter(valorDocumento > 0) %>%
   group_by(sgPartido) %>%
   summarise(qtd_CEAP = n()) 
 
-uso_ceapW = uso_ceap %>% top_n(uso_ceap$qtd_CEAP, n = -10)
-
-
-
-uso_ceapW%>% 
-  ggplot(aes(x = sgPartido, y = qtd_CEAP, color = sgPartido)) + 
+uso_ceap %>% 
+  #Top 7 partidos que mais usam CEAP
+  top_n(uso_ceap$qtd_CEAP, n = 7) %>% 
+  ggplot(aes(x = reorder(sgPartido, qtd_CEAP), y = qtd_CEAP, color = sgPartido)) + 
   geom_point(size = 6) + 
   theme_classic() +
-  ggtitle("Partido x Uso do CEAP")
+  xlab("Uso da CEAP") + ylab("Partidos") +
+  ggtitle("Partidos que mais utilizam a CEAP")
 ```
+
+# Quais os partidos que menos fazem uso da CEAP?
 
 ```{r}
-valor_ceap = amostra %>% 
-  group_by(sgPartido) %>% 
-  summarise(valor = sum(valorDocumento))
-
-valor_ceap%>% 
-  ggplot(aes(x = sgPartido, y = valor, color = sgPartido)) + 
+uso_ceap %>% 
+  #Top 7 partidos que menos usam CEAP
+  top_n(uso_ceap$qtd_CEAP, n = -7) %>% 
+  ggplot(aes(x = reorder(sgPartido, qtd_CEAP), y = qtd_CEAP, color = sgPartido)) + 
   geom_point(size = 6) + 
   theme_classic() +
-  ggtitle("Partido x Valor em R$")
+  xlab("Uso da CEAP") + ylab("Partidos") +
+  ggtitle("Partidos que menos utilizam a CEAP")
 ```
+
+#Quais os partidos com maior custo na CEAP?
+
+```{r}
+gasto_ceap <- amostra %>% 
+  group_by(sgPartido) %>% 
+  summarise(gasto = sum(valorDocumento))
+
+gasto_ceap %>% 
+  top_n(gasto_ceap$gasto, n = 7) %>% 
+  ggplot(aes(x = reorder(sgPartido, gasto), y = gasto, fill = sgPartido)) +  
+  geom_bar(colour="black", stat="identity") +
+  ylab("Gastos - R$") + xlab("Partidos") + 
+  ggtitle("Partidos que mais gastam")
+```
+
+#Quais os partidos com menor custo na CEAP?
+
+```{r}
+gasto_ceap %>% 
+  top_n(gasto_ceap$gasto, n = -7) %>% 
+  ggplot(aes(x = reorder(sgPartido, gasto), y = gasto, fill = sgPartido)) +  
+  geom_bar(colour="black", stat="identity") +
+  ylab("Gastos - R$") + xlab("Partidos") + 
+  ggtitle("Partidos que menos gastam")
+```
+
 
 ```{r}
 despesas_mais_comuns = amostra %>% 
   group_by(tipoDespesa) %>% 
   summarise(qtd = n())
+
+highchart() %>% 
+  hc_xAxis(despesas_mais_comuns$tipoDespesa) %>% 
+  hc_add_series(name = "Despesas mais comuns" , data = (despesas_mais_comuns$qtd))
+
+
 ```
 
 ```{r}
