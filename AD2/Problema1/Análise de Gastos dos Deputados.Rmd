@@ -65,6 +65,7 @@ despesas_comuns %>%
   top_n(despesas_comuns$qtd, n = 5) %>% 
   ggplot(aes(x = reorder(tipoDespesa, qtd), y = qtd, fill = tipoDespesa)) +  
   geom_bar(colour="black", stat="identity") +
+  theme(axis.text.x=element_blank(), axis.ticks=element_blank()) +
   ylab("Frequência na CEAP") + xlab("Tipos de Despesas") + 
   ggtitle("Despesas mais frequentes")
 ```
@@ -83,6 +84,7 @@ despesas_mais_caras%>%
   top_n(despesas_mais_caras$valor, n = 5) %>% 
   ggplot(aes(x = reorder(tipoDespesa, valor), y = valor, fill = tipoDespesa)) +  
   geom_bar(colour="black", stat="identity") +
+  theme(axis.text.x=element_blank(), axis.ticks=element_blank()) +
   ylab("Gastos - R$") + xlab("Partidos") + 
   ggtitle("Despesas mais caras")
 ```

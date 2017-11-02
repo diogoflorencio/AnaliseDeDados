@@ -17,24 +17,40 @@ editor_options:
 library(tidyverse)
 library(ggplot2)
 options(scipen = 4)
-ceap <- read_csv("../dados/dadosCEAP.csv") %>% filter(nomeParlamentar != "NA")
+ceap <- read_csv("../dados/dadosCEAP.csv") %>% 
+  filter(nomeParlamentar != "NA")
 ```
 
 Por meio dos dados coletados da Câmara dos Deputados iremos determinar características interessantes sobre o uso da CEAP, durante o período de outubro de 2014 à novembro de 2017.
 
 A CEAP (cota para o exercício da atividade parlamentar) é uma cota única mensal destinada a custear os gastos dos deputados exclusivamente vinculados ao exercício da atividade parlamentar. Exemplos de despesa desse tipo são: passagens aéreas, telefonia, serviços postais, manutenção de escritórios de apoio à atividade parlamentar, assinatura de publicações, fornecimento de alimentação ao parlamentar, hospedagem, outras despesas com locomoção, contemplando locação ou fretamento de aeronaves, veículos automotores e embarcações, serviços de táxi, pedágio e estacionamento e passagens terrestres. Os dados desta análise estão disponíveis [aqui](https://instructure-uploads.s3.amazonaws.com/account_70000000000010/attachments/56674660/dadosCEAP.csv.zip?response-content-disposition=attachment%3B%20filename%3D%22dadosCEAP.csv.zip%22%3B%20filename%2A%3DUTF-8%27%27dadosCEAP.csv.zip&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAJFNFXH2V2O7RPCAA%2F20171031%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20171031T133839Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=27666f57686790fe29da7e4191daa763f081963cb1ff4760eba1e9c3c29fdd02).
 
-#Quais deputados mais viajam? Quais viajam menos?
+#Quais deputados mais viajam?
+
+Para mensurar quanto um deputado viaja considerei a quantidade de documentos fiscais referentes à viagens aéreas. Não foram considerados documentos estornados.
 
 ```{r}
 viagens_parlamentar <- ceap %>%
   filter(grepl("AÉRE", tipoDespesa, ignore.case = TRUE)) %>% 
   filter(valorLíquido > 0) %>%
-  group_by(idCadastro, nomeParlamentar) %>% 
-  summarise(viagens = n())
+  group_by(idCadastro, nomeParlamentar, sgPartido) %>% 
+  summarise(viagens = as.integer(n())) %>% ungroup()
+
+viagens_parlamentar %>%
+  top_n(viagens_parlamentar$viagens, n = 7) %>%
+  ggplot(aes(x = reorder(nomeParlamentar, viagens), y = viagens, fill = sgPartido)) +  
+  geom_bar(stat="identity") +
+  theme(axis.title.y=element_blank()) +
+  coord_flip() +
+  ylab("Quantidade de Viagens") +
+  ggtitle("Os deputados que mais viajam")
 ```
 
-#Quais partidos mais gastam com divulgação? Quais menos gastam?
+O gráfico exibe os 7 deputados que mais viajam, a legenda relaciona deputado e partido.
+
+#Quais partidos mais gastam com divulgação?
+
+Para responder esta pergunta, considerei o somatório dos gastos dos deputados relacionados com divulgação agrupando-os por partido. Novamente, todos os valores restituídos foram desconsiderados.
 
 ```{r}
 divulgacao <- ceap %>% 
@@ -42,9 +58,20 @@ divulgacao <- ceap %>%
   group_by(sgPartido) %>%
   summarise(valor_gasto = sum(valorLíquido))
 
+divulgacao %>% 
+  top_n(divulgacao$valor_gasto, n = 10) %>%
+  ggplot(aes(x = reorder(sgPartido, valor_gasto), y = valor_gasto)) +  
+  geom_bar(stat="identity") +
+  theme(axis.title.x=element_blank()) +
+  ylab("Quantidade de Viagens") +
+  ggtitle("Os partidos que mais gastam com divulgação")
+
 ```
+O gráfico mostra os 10 partidos que mais gastam com *Divulgação da Atividade Parlamentar*. 
 
 #Existe correlação entre a quantidade de viagens de um partido e seus gastos com divulgação?
+
+Para determinar se existe correlação entre a quantidade de viagens e os gastos com divulgação de um partido vamos olhar a disposição dos dados. O gráfico relaciona quanto os deputados de um partido viajam e quanto gastam com *Divulgação da Atividade Parlamentar*.
 
 ```{r}
 viagens_partidos <- ceap %>%
@@ -55,5 +82,12 @@ viagens_partidos <- ceap %>%
 
 partidos <- merge(viagens_partidos,divulgacao)
 
+partidos %>%
+    ggplot(aes(x = viagens, y = valor_gasto)) + 
+    geom_point(color = "blue") +
+    xlab("Quantidade de Viagens") + ylab("Gasto com Divulgação - R$")
+
 cor(partidos$viagens, partidos$valor_gasto)
 ```
+
+É possível perceber uma clara correlação linear positiva entre as variáveis. A correlação linear é de 0.9810439, ou seja, quanto mais os deputados de um partido viajam mais o partido como um todo gasta com *Divulgação da Atividade Parlamentar*.
