@@ -134,6 +134,25 @@ O gráfico exibe os 3 parlamentares que mais e menos gastam. Edio Lopes RR é o 
 
 Nenhuma despesa no exterior foi restituída.
 
+###Quais os estados cujos deputados gastam mais no exterior? Quais os estados cujos deputados gastam menos no exterior?
+
+Afim de responder esta questão foi relacionado o total dos gastos no exterior para cada estado.
+```{r}
+estados_exterior <- amostra %>%
+  filter(tipoDocumento == 2) %>%
+  group_by(sgUF) %>%
+  summarise(gasto = sum(valorLíquido))
+
+estados_exterior <- bind_rows(top_n(estados_exterior, n = 10), top_n(estados_exterior, n = -10))
+
+ggplot(estados_exterior, aes(x = reorder(sgUF, gasto), y = gasto)) +
+  geom_bar(stat = "identity") + 
+  labs(x = "Estado", y = "Gasto (R$)") +
+  ggtitle("Gastos no exterior por estado")
+```
+
+Os 10 estados que mais e menos gastam no exteriorsão exibidos no gráfico. O estado com maior gasto é São Paulo e com menor gasto é o Maranhão.
+
 ###Quais os deputados que mais ultrapassam o limite de CEAP do seu estado?
 
 Para esta pergunta, foi feita uma análise por meio do valor total de gastos por deputado e então subtraído o limite do seu respectivo estado.
