@@ -1,10 +1,8 @@
 name: Publish Document
 title:
-username:
 account: rpubs
 server: rpubs.com
-hostUrl: rpubs.com
 appId: https://api.rpubs.com/api/v1/document/325971/cb6bbcc3cb5644b19f84144e2c2c27bd
 bundleId: https://api.rpubs.com/api/v1/document/325971/cb6bbcc3cb5644b19f84144e2c2c27bd
 url: http://rpubs.com/diogoflorencio/325971/edit
-when: 1509670192.15137
+when: 1509670558.66817
