@@ -34,3 +34,4 @@ vignettes/*.pdf
 
 # user files
 /AD2/dados/dadosCEAP.csv
+.Rproj.user

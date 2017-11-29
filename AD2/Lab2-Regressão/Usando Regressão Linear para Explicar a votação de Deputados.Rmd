@@ -1,0 +1,42 @@
+---
+title: "Usando Regressão Linear para Explicar a votação de Deputados"
+author: "Diogo Florêncio"
+date: "27 de novembro de 2017"
+output:
+  html_notebook:
+    theme: readable
+    toc: true
+    toc_float: true
+    fig_width: 5
+    fig_height: 4
+editor_options: 
+  chunk_output_type: inline
+---
+
+```{r}
+library(tidyverse)
+library(ggplot2)
+library(caret)
+options(scipen = 4)
+eleicoes <- read.csv("../dados/eleicoes2014.csv", encoding = "latin1")
+```
+
+##Um modelo de regressão múltipla com todas as variáveis é plausível para explicar a variação em y (número de votos)?
+```{r}
+reg_linear =  lm(votos ~ sequencial_candidato + numero_cadidato + UF + partido 
+          + setor_economico_receita +  quantidade_doacoes+ quantidade_doadores + total_receita + media_receita 
+          + recursos_de_outros_candidatos.comites + recursos_de_partidos + recursos_de_pessoas_físicas
+          + recursos_de_pessoas_juridicas + recursos_proprios + quantidade_despesas 
+          + quantidade_fornecedores + total_despesa + media_despesa + setor_economico_despesa 
+          + idade + sexo + grau + estado_civil, data=eleicoes) 
+
+summary(reg_linear)
+```
+
+##Todas as variáveis são úteis para o modelo de regressão? Há variáveis redudantes?
+
+##No caso de haver variáveis pouco explicativas e/ou redudantes, construa um novo modelo sem essas variáveis e o compare ao modelo com todas as variáveis (e.g. em termos de R2 e RSE).
+
+##Analise plots de resíduos e verifique se há tendências nos erros.
+
+##Quais variáveis conseguem explicar melhor o número de votos?
