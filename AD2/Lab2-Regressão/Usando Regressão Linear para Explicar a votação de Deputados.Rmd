@@ -4,7 +4,7 @@ author: "Diogo Florêncio"
 date: "27 de novembro de 2017"
 output:
   html_notebook:
-    theme: readable
+    theme: readable 
     toc: true
     toc_float: true
     fig_width: 5
@@ -18,25 +18,54 @@ library(tidyverse)
 library(ggplot2)
 library(caret)
 options(scipen = 4)
-eleicoes <- read.csv("../dados/eleicoes2014.csv", encoding = "latin1")
+dados <- read.csv("../dados/eleicoes2014.csv", encoding = "latin1")
 ```
 
-##Um modelo de regressão múltipla com todas as variáveis é plausível para explicar a variação em y (número de votos)?
+###Um modelo de regressão múltipla com todas as variáveis é plausível para explicar a variação em y (número de votos)?
+
+Para análisar se um modelo de regressão múltipla com todas as variáveis é plausível, estimei a proporção de quanto da variação da variável alvo `número de votos` o modelo consegue explicar (R²), também considerei o p-valor associado aos atributos. Caso o p-valor seja menor que 0,05, rejeita-se H0 com um nível de confiança de 95%, assim conclui-se que a variável explicativa tem correlação com a variável resposta.
 ```{r}
+#gerando modelo de regressão múltipla 
 reg_linear =  lm(votos ~ sequencial_candidato + numero_cadidato + UF + partido 
           + setor_economico_receita +  quantidade_doacoes+ quantidade_doadores + total_receita + media_receita 
           + recursos_de_outros_candidatos.comites + recursos_de_partidos + recursos_de_pessoas_físicas
           + recursos_de_pessoas_juridicas + recursos_proprios + quantidade_despesas 
           + quantidade_fornecedores + total_despesa + media_despesa + setor_economico_despesa 
-          + idade + sexo + grau + estado_civil, data=eleicoes) 
+          + idade + sexo + grau + estado_civil, data = dados) 
 
 summary(reg_linear)
 ```
 
-##Todas as variáveis são úteis para o modelo de regressão? Há variáveis redudantes?
+O modelo possui um R² = 0.4626, ou seja,  53,74% da variação em `número de votos` não é explicada. Também existem muitas variáveis com o p-valor muito elevado, por exemplo `total_despesa` e `media_despesa`. Assim, considerando que nem metade da variação de `números de votos` é explicada e pelo p-valor elevado de muitas variáveis, concluo não ser plausível um modelo de regressão múltipla com todas as variáveis.
+
+###Todas as variáveis são úteis para o modelo de regressão? Há variáveis redudantes?
+
+Nem todas as variáveis são úteis para o modelo de regressão, como já demostrado na questão anterior por meio do p-valor. e também com sua correlação com a variável alvo.
+
+```{r}
+
+```
 
 ##No caso de haver variáveis pouco explicativas e/ou redudantes, construa um novo modelo sem essas variáveis e o compare ao modelo com todas as variáveis (e.g. em termos de R2 e RSE).
 
+```{r}
+
+```
+
+
 ##Analise plots de resíduos e verifique se há tendências nos erros.
 
+```{r}
+ggplot(reg_linear, aes(x = .fitted, y = .resid)) + 
+  geom_point() + 
+  xlab("Ajustado") + 
+  ylab("Resíduos")
+```
+
+
 ##Quais variáveis conseguem explicar melhor o número de votos?
+As variáveis que mais explicam o `numero de votos`
+```{r}
+
+```
+
