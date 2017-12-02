@@ -17,6 +17,7 @@ editor_options:
 library(tidyverse)
 library(ggplot2)
 library(caret)
+library(leaps)
 options(scipen = 4)
 dados <- read.csv("../dados/eleicoes2014.csv", encoding = "latin1")
 ```
@@ -36,24 +37,39 @@ reg_linear =  lm(votos ~ sequencial_candidato + numero_cadidato + UF + partido
 summary(reg_linear)
 ```
 
-O modelo possui um R² = 0.4626, ou seja,  53,74% da variação em `número de votos` não é explicada. Também existem muitas variáveis com o p-valor muito elevado, por exemplo `total_despesa` e `media_despesa`. Assim, considerando que nem metade da variação de `números de votos` é explicada e pelo p-valor elevado de muitas variáveis, concluo não ser plausível um modelo de regressão múltipla com todas as variáveis.
+O modelo possui um R² = 0.4626, ou seja, 53.74% da variação em `número de votos` não é explicada. Também existem muitas variáveis com o p-valor muito elevado. Assim, considerando que nem metade da variação de `números de votos` é explicada e pelo p-valor elevado de muitas variáveis, concluo não ser plausível um modelo de regressão múltipla com todas as variáveis.
 
 ###Todas as variáveis são úteis para o modelo de regressão? Há variáveis redudantes?
 
-Nem todas as variáveis são úteis para o modelo de regressão, como já demostrado na questão anterior por meio do p-valor. e também com sua correlação com a variável alvo.
-
+Nem todas as variáveis são úteis para o modelo de regressão, como já demostrado na questão anterior por meio do p-valor. Para determinar se existem variáveis explicativas redundantes analisei a correlação linear entre pares. 
 ```{r}
 
+#removendo variáveis desnecessárias
+dados_tratados <- dados %>% select(-nome, -sequencial_candidato, -numero_cadidato, -cargo, -setor_economico_receita, -setor_economico_despesa, -UF)
+
+#Convertendo variáveis categoricas em numéricas
+dados_tratados$sexo <- as.numeric(dados_tratados$sexo)
+dados_tratados$grau <- as.numeric(dados_tratados$grau)
+dados_tratados$estado_civil <-as.numeric(dados_tratados$estado_civil)
+dados_tratados$partido <-as.numeric(dados_tratados$partido)
+
+#Calculando correlações
+corr = cor(dados_tratados[, 1:19])
+round(corr, 2)
 ```
 
-##No caso de haver variáveis pouco explicativas e/ou redudantes, construa um novo modelo sem essas variáveis e o compare ao modelo com todas as variáveis (e.g. em termos de R2 e RSE).
+Algumas variáveis tem correlação muito forte, oque indica redundância, por exemplo: quantidade_fornecedores x quantidade_despesas corr = 0.93, recursos_partidos x total_receita = 0.82, total_depesa x total_receita corr = 0.99, quantiade_doadores x quantidade_doacoes corr = 0.86.
+
+###No caso de haver variáveis pouco explicativas e/ou redudantes, construa um novo modelo sem essas variáveis e o compare ao modelo com todas as variáveis (e.g. em termos de R2 e RSE).
 
 ```{r}
-
+#Gerando modelo de regressão múltipla sem variáveis redundantes ou desnecessárias
+reg_linear_tratada =  lm(formula = votos ~ ., dados_tratados, na.action = na.omit)
+summary(reg_linear_tratada)
 ```
 
 
-##Analise plots de resíduos e verifique se há tendências nos erros.
+###Analise plots de resíduos e verifique se há tendências nos erros.
 
 ```{r}
 ggplot(reg_linear, aes(x = .fitted, y = .resid)) + 
@@ -62,9 +78,10 @@ ggplot(reg_linear, aes(x = .fitted, y = .resid)) +
   ylab("Resíduos")
 ```
 
+O gráfico exibe um padrão nos resíduos, evidenciando que o modelo não é ideal. 
 
-##Quais variáveis conseguem explicar melhor o número de votos?
-As variáveis que mais explicam o `numero de votos`
+###Quais variáveis conseguem explicar melhor o número de votos?
+As variáveis que mais explicam melhor o `numero de votos` são as que possuiem o menos p-valor e não tem uma forte correlação entre si.
 ```{r}
 
 ```
