@@ -20,6 +20,21 @@ options(scipen = 4)
 dados <- read.csv("../dados/eleicoes2014.csv", encoding = "latin1")
 ```
 
+Antes
+
+
+```{r}
+dados$recursos_de_outros_candidatos.comites[is.na(dados$recursos_de_outros_candidatos.comites)]<-median (dados$recursos_de_outros_candidatos.comites, na.rm = TRUE)
+dados$recursos_de_partidos[is.na(dados$recursos_de_partidos)]<-median (dados$recursos_de_partidos, na.rm = TRUE)
+dados$recursos_de_pessoas_físicas[is.na(dados$recursos_de_pessoas_físicas)]<-median (dados$recursos_de_pessoas_físicas, na.rm = TRUE)
+dados$recursos_de_pessoas_juridicas[is.na(dados$recursos_de_pessoas_juridicas)]<-median (dados$recursos_de_pessoas_juridicas, na.rm = TRUE)
+dados$recursos_proprios[is.na(dados$recursos_proprios)]<-median (dados$recursos_proprios, na.rm = TRUE)
+
+
+```
+
+
+
 ###Usando todas as variáveis disponíveis, tune (usando validação cruzada): (i) um modelo de regressão Ridge, (ii) um modelo de regressão Lasso e (iii) um modelo KNN. Para os modelos de regressão linear, o parâmetro a ser tunado é o lambda (penalização dos coeficientes) e o KNN o número de vizinhos.
 
 ```{r}
@@ -30,25 +45,49 @@ trainIndex <- createDataPartition(dados$votos, p = .75, list = FALSE)
 treino <- dados[trainIndex,]
 teste <- dados[-trainIndex,]
 
-#modelo Lasso
+#removendo variáveis
+dados <- dados %>% select(-nome, -sequencial_candidato, -numero_cadidato, -cargo, -setor_economico_receita, -setor_economico_despesa)
 
-fitControl <- trainControl(method='cv', number = 10)
-
-lasso.fit <- train(votos ~sequencial_candidato + numero_cadidato + UF + partido 
-          + setor_economico_receita, data=dados, 
+#lasso
+fitControl <- trainControl(method='repeatedcv', number = 3)
+lasso.fit <- train(votos ~.,data = dados, 
                   method='lasso', 
                   metric="RMSE",
                   tuneLength = 10,
                   trControl=fitControl)
+
+#knn
+knnn.fit  <- train(votos ~.,data = dados, 
+                  method='knn', 
+                  metric="RMSE",
+                  tuneLength = 10,
+                  trControl=fitControl)
+
+
+```
+
+Compare os três modelos em termos do erro RMSE de validação cruzada.
+
+```{r}
+
+```
+
+Quais as variáveis mais importantes segundo o modelo de regressão Ridge e Lasso?  Variáveis foram descartadas pelo Lasso? Quais? (9 pts.)
+
+```{r}
+
+```
+
+Re-treine o melhor modelo (usando os melhores valores de parâmetros encontrados em todos os dados, sem usar validação cruzada). (9 pts.)
+
+```{r}
+
 ```
 
 
-
-
-
-
-
-Compare os três modelos em termos do erro RMSE de validação cruzada. (9 pts.)
-Quais as variáveis mais importantes segundo o modelo de regressão Ridge e Lasso?  Variáveis foram descartadas pelo Lasso? Quais? (9 pts.)
-Re-treine o melhor modelo (usando os melhores valores de parâmetros encontrados em todos os dados, sem usar validação cruzada). (9 pts.)
 Use esse último modelo treinado para prever os dados de teste que disponibilizaremos por meio da plataforma Kaggle: (a ser disponibilizado) (9 pts.)
+
+```{r}
+
+```
+
