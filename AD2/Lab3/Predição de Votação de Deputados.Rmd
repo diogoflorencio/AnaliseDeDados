@@ -18,7 +18,7 @@ library(tidyverse)
 library(caret)
 library(reshape2)
 options(scipen = 4)
-dados <- read.csv("../dados/eleicoes2014.csv", encoding = "latin1")
+dados <- read.csv("../dados/train.csv", encoding = "UTF-8")
 ```
 
 Analisando os dados é possível perceber que existe um grande número de `NA'S`(ausência de dados) nas colunas referentes as variáveis `recursos_de_outros_candidatos.comites`, `recursos_de_partidos`, `recursos_de_pessoas_físicas`, `recursos_de_pessoas_juridicas` e `recursos_proprios`. Afim de solucionar este problema, substitui esses valores pela mediana de cada variável. 
@@ -36,11 +36,11 @@ dados$recursos_de_pessoas_juridicas[is.na(dados$recursos_de_pessoas_juridicas)]<
 dados$recursos_proprios[is.na(dados$recursos_proprios)]<-median (dados$recursos_proprios, na.rm = TRUE)
 ```
 
-Algumas variáveis sem significado como `sequencial_candidato` ou com muitos valores `#NULO`, como `setor_economico_receita`, foram removidas a fim de trazer mais clareza aos modelos de regressão.
+Algumas variáveis que causavam problemas ao gerar o modelo de regressão ou com muitos valores `#NULO`, como `setor_economico_receita`,  foram removidas a fim de trazer mais clareza aos modelos de regressão.
 
 ```{r}
 #removendo variáveis
-dados <- dados %>% select(-nome, -sequencial_candidato, -numero_cadidato, -cargo, -setor_economico_receita, -setor_economico_despesa)
+dados <- dados %>% select(-nome, -cargo, -setor_economico_receita, -setor_economico_despesa)
 ```
 
 ###Usando todas as variáveis disponíveis, tune (usando validação cruzada): 
@@ -51,7 +51,7 @@ dados <- dados %>% select(-nome, -sequencial_candidato, -numero_cadidato, -cargo
 **O parâmetro a ser tunado é o lambda (penalização dos coeficientes) e o KNN o número de vizinhos.**
 
 **Modelo de Regressão Ridge**
-Os dados consistem em 4152 observações, o modelo de regressão foi gerado considerando um k-fold = 10 e 30 valores distintos para lambda entre o intervalo [10^2;10^-10].
+Os dados consistem em 4152 observações, o modelo de regressão foi gerado considerando 10-fold e 30 valores distintos para lambda entre o intervalo [10^2;10^-10].
 
 ```{r}
 fitControl <- trainControl(method='cv', number = 10)
@@ -60,99 +60,117 @@ fitControl <- trainControl(method='cv', number = 10)
 lambda <- expand.grid(lambda = 10^seq(2, -10, length=30))
 
 #modelo de regressão Ridge
-ridge.fit <- train(votos ~.,data = dados, 
+ridge <- train(votos ~.,data = dados, 
                   method='ridge', 
                   metric="RMSE",
                   tuneGrid = lambda,
-                  trControl=fitControl,
-                  na.action = na.omit)
-plot(ridge.fit)
+                  trControl=fitControl)
+plot(ridge)
 ```
-O valor de lambda = 0.000007906043 gerou o menor RMSE.
+O valor lambda = 0.04893901 gerou o menor RMSE.
 
 **Modelo de Regressão Lasso**
-No modelo de regressão Lasso também foi utilizado um k-fold = 10 e o parametro de variação do fraction definido como 30 valores no intervalo [0.001; 1].
+No modelo de regressão Lasso também foi utilizado 10-fold e o parametro de variação do fraction definido como 30 valores no intervalo [0.001; 1].
 
 ```{r}
 # variação do fraction
 fraction <- expand.grid(fraction = seq(0.01, 1, length = 30))
 
 #modelo de regressão Lasso
-lasso.fit <- train(votos ~.,data = dados, 
+lasso <- train(votos ~.,data = dados, 
                   method='lasso', 
                   metric="RMSE",
                   tuneGrid = fraction,
                   trControl=fitControl)
-plot(lasso.fit)
+plot(lasso)
 ```
-O fraction = 0.1124138 gerou o menor RMSE observado. 
+O fraction = 0.04413793 gerou o menor RMSE observado. 
 
 **Modelo de Regressão KNN**
-Para o modelo de regressão KNN foi mantido o padrão de um k-fold = 10, o parametro referente ao número de vizinhos foi definido como 60 valores no intervalo[1;100].
+Para o modelo de regressão KNN foi mantido o padrão 10-fold o parametro referente ao número de vizinhos foi definido como 20 valores no intervalo[5;25].
 
 ```{r}
 # variação de vizinhos
-vizinhos <- expand.grid(k = seq(1, 100, length = 60))
+vizinhos <- expand.grid(k = seq(5, 25))
 
 #modelo de regressão KNN
-knn.fit <- train(votos ~.,data = dados, 
+knn <- train(votos ~.,data = dados, 
                   method='knn', 
                   metric="RMSE",
                   tuneGrid = vizinhos,
                   trControl=fitControl)
-plot(knn.fit)
+plot(knn)
 ```
-O menor RMSE foi observado ao se considerar aproximadamente 68 vizinhos.
+O menor RMSE foi observado ao se considerar 11 vizinhos.
 
 ###Compare os três modelos em termos do erro RMSE de validação cruzada.
 
 Todos os modelos em questão considereram um k-fold = 10.
 ```{r}
-ridge.fit
-lasso.fit
-knn.fit
+ridge
+lasso
+knn
 ```
-O modelo que apresentou menor RMSE foi o KNN com 29197.99, seguido de Lasso (30853.46) e Ridge (31294.66). Também é interessante observar que considerando a magnetude do RMSE a diferença entre os modelos é miníma.
+O modelo que apresentou menor RMSE foi o KNN com 28992.60, seguido de Lasso (31507.49) e Ridge (31569.86). Também é interessante observar que considerando a magnetude do RMSE a diferença entre os modelos é miníma.
 
 ###Quais as variáveis mais importantes segundo o modelo de regressão Ridge e Lasso?  Variáveis foram descartadas pelo Lasso? Quais?
 
 ```{r}
-ggplot(varImp(ridge.fit)) +
+ggplot(varImp(ridge)) +
 theme(axis.title.y=element_blank()) +
 ggtitle("Ridge - Variável X Importância")
 ```
 
 
 ```{r}
-ggplot(varImp(lasso.fit)) +
+ggplot(varImp(lasso)) +
 theme(axis.title.y=element_blank()) +
 ggtitle("Lasso - Variável X Importância")
 ```
-Tanto Ridge como Lasso apresentam as mesmas variáveis como as mais importantes( `total_receita`, `total_despesa` e `recusrsos_de_pessoas_juridicas`). O Modelo Lasso não descartou nenhuma variável mas é possível perceber que `recursos_proprios` e `UF` praticamente não tem importância.
+Tanto Ridge como Lasso apresentam as mesmas variáveis como as mais importantes( `total_receita`, `total_despesa` e `recusrsos_de_pessoas_juridicas`). O Modelo Lasso não descartou nenhuma variável mas é possível perceber que variáveis como `recursos_proprios` e `UF` praticamente não tem importância.
 
 ###Re-treine o melhor modelo (usando os melhores valores de parâmetros encontrados em todos os dados, sem usar validação cruzada).
 
-Como visto anteriormente o modelo com menor RMSE foi o KNN. Para re-treinar o modelo os valores de k-fold e número de vizinhos foram mantidos. Ainda foram removidas as variáveis de menor importância `recursos_proprios`,`UF`,`partido`, `idade`,`estado_civil`, `grau` e `sexo`. Como método de validação do modelo foi utilizado o `cross validation repeated`.
+Como visto anteriormente o modelo com menor RMSE foi o KNN. Para re-treinar o modelo o 10-fold foi mantido e número de vizinhos fixado no melhor valor encontrado `11`. Como método de validação do modelo foi utilizado o `boot`.
 
 ```{r}
-#removendo variáveis pouco importantes
-dados %>% select(-recursos_proprios, -UF, -partido, -idade, -estado_civil, -grau, -sexo)
-
 #definindo um novo método para validação do modelo
-fitControl <- trainControl(method = "repeatedcv" , number = 10)
+fitControl <- trainControl(method = "boot" , number = 10)
+
+#fixando número de vizinhos
+visinhos <- expand.grid(k = seq(11, 11, length=1))
 
 #re-treino do modelo KNN
-knn.fit <- train(votos ~.,data = dados, 
+knn <- train(votos ~.,data = dados, 
                   method='knn', 
                   metric="RMSE",
-                  tuneGrid = vizinhos,
-                  trControl=fitControl)
-knn.fit
+                  tuneGrid = vizinhos)
 ```
-O novo treino melhorou o modelo como esperado, seu RMSE diminuiu de 29197.99 para 28567.26, esse novo RMSE foi observado considerando aproximadamente 71 vizinhos.
 
 ###Use esse último modelo treinado para prever os dados de teste que disponibilizaremos por meio da plataforma Kaggle.
 
 ```{r}
+teste <- read.csv("../dados/test.csv", encoding="UTF-8")
 
+teste$recursos_de_outros_candidatos.comites[is.na(teste$recursos_de_outros_candidatos.comites)]<-median (teste$recursos_de_outros_candidatos.comites, na.rm = TRUE)
+
+teste$recursos_de_partidos[is.na(teste$recursos_de_partidos)]<-median (teste$recursos_de_partidos, na.rm = TRUE)
+
+teste$recursos_de_pessoas_físicas[is.na(teste$recursos_de_pessoas_físicas)]<-median (teste$recursos_de_pessoas_físicas, na.rm = TRUE)
+
+teste$recursos_de_pessoas_juridicas[is.na(teste$recursos_de_pessoas_juridicas)]<-median (teste$recursos_de_pessoas_juridicas, na.rm = TRUE)
+
+teste$recursos_proprios[is.na(teste$recursos_proprios)]<-median (teste$recursos_proprios, na.rm = TRUE)
+
+submissao <- read.csv("../dados/sample_submission.csv")
+teste <- teste %>% select(-nome, -cargo, -setor_economico_receita, -setor_economico_despesa)
+
+submission_predict <- predict(knn, teste)
+
+for(i in 1:length(submission_predict)){
+  print(submission_predict[i])
+  submissao$votos[i] = abs(submission_predict[i])
+}
+
+write.csv(submissao, file = "../dados/submissao.csv", row.names = FALSE)
 ```
