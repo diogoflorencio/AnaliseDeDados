@@ -1,14 +1,15 @@
 ---
-title: "Predição de Deputados Eleitos"
-author: "Diogo Florêncio"
-date: "1 de março de 2018"
+title: "Predi??o de Deputados Eleitos"
+author: "Diogo Flor?ncio"
+date: "1 de mar?o de 2018"
 output:
   html_notebook:
-    theme: readable 
-    toc: true
-    toc_float: true
-    fig_width: 5
+    fig_caption: yes
     fig_height: 4
+    fig_width: 5
+    theme: readable
+    toc: yes
+    toc_float: yes
 editor_options: 
   chunk_output_type: inline
 ---
@@ -16,14 +17,197 @@ editor_options:
 ```{r}
 library(tidyverse)
 library(caret)
+library(ROSE)
+library(missForest)
 options(scipen = 4) #escala dos valores exibidos
-treino <- read.csv("../dados/train_lab4.csv", encoding = "UTF-8")
+data <- read.csv("../dados/train_lab4.csv", encoding = "UTF-8")
+
+# Separa os dados em treino e teste
+dataPartition <- createDataPartition(y = data$situacao_final, p=0.75, list=FALSE)
+# Se o y for um vector de factor a divis?o ? feita tentando balancear a distribui??o de classes de # y dentro das parti??es.
+
+train <- data[ dataPartition, ]
+validation <- data[ -dataPartition, ]
 ```
 
-###Há desbalanceamento das classes (isto é, uma classe tem muito mais instâncias que outra)? Em que proporção? Quais efeitos colaterais o desbalanceamento de classes pode causar no classificador?.
+Os dados de treino apresentam muitos valores faltantes representados por `0`, para resolver este problema Utilizei o m?todo missForest, do pacote missForest. Este m?todo constro? um modelo de `floresta aleat?ria` para cada vari?vel e ent?o utliza para prever os valores das vari?veis faltantes por meio dos valores observados.
 
-###Treine: um modelo de regressão logística, uma árvore de decisão e um modelo de adaboost. Tune esses modelos usando validação cruzada e controle overfitting se necessário, considerando as particularidades de cada modelo.
+Algumas vari?veis irrelevantes foram removidas como `ID` e `nome`.
 
-###Reporte acurácia, precision, recall e f-measure no treino e validação. Como você avalia os resultados? Justifique sua resposta.
+```{r}
+#removendo vari?veis irrelevantes
+train <- train %>% select(-ID, -nome, -numero_cadidato, -setor_economico_receita, -setor_economico_despesa) 
+validation <- validation %>% select(-ID, -nome, -numero_cadidato, -setor_economico_receita, -setor_economico_despesa)
 
-###Interprete as saídas dos modelos. Quais atributos parecem ser mais importantes de acordo com cada modelo? Crie pelo menos um novo atributo que não está nos dados originais e estude o impacto desse atributo.
+#o m?todo missForest n?o executa para vari?veis com mais de 53 categorias, neste caso optei por remover a vari?vel descricao_ocupacao
+train <- train %>% select(-descricao_ocupacao)
+validation <- validation %>% select(-descricao_ocupacao)
+
+#transformando valores faltantes em NA
+train[train == 0] <- NA
+validation[validation == 0] <- NA
+
+#tratando missing data 
+train <- missForest(train)$ximp
+validation <- missForest(validation)$ximp
+```
+
+##H? desbalanceamento das classes (isto ?, uma classe tem muito mais inst?ncias que outra)? Em que propor??o? Quais efeitos colaterais o desbalanceamento de classes pode causar no classificador?.
+
+Classes desbalanceadas ocorrem quando existe uma grande despropor??o entre o n?mero de exemplos de cada classe. Essa situa??o frequentemente faz com que os exemplos da classe minorit?ria sejam classificados incorretamente.
+
+```{r}
+prop.table(table(train$situacao_final))
+```
+
+Analisando os dados de treino ? f?cil perceber o grande desbalanceamento entre classes, neste caso a classe `nao_eleitos` compreende aproximadamente 90% dos exemplos de treino.
+
+Para resolver esse problema utilizei o m?todo de balanceamento ROSE, do pacote ROSE, este m?todo gera dados de forma sint?tica buscando preservar as caracter?sticas dos dados originais.
+
+```{r}
+train <- ROSE(situacao_final ~ ., data = train, seed = 1)$data
+prop.table(table(train$situacao_final))
+```
+
+Agora as classes apresentam uma quantidade proporcional de exemplos, `nao_eleitos` 52% e `eleitos` 48%.
+
+##Treine: um modelo de regress?o log?stica, uma ?rvore de decis?o e um modelo de adaboost. Tune esses modelos usando valida??o cruzada e controle overfitting se necess?rio, considerando as particularidades de cada modelo.
+
+###Regress?o Log?stica
+
+O modelo de regress?o log?stica foi tunado conforme a fun??o definida em `fitcontrol`, o hiperparametro do modelo ? otimizado por meio de testes em `n` valores aleat?rios. Todos os modelos consideram 5-fold para valida??o cruzada.
+
+```{r}
+fitControl <- trainControl(method = "cv",
+                    number = 5,
+                    search= "random")
+
+formula <- as.formula(situacao_final ~.)
+
+# Regress?o log?stica glm (generalized linear model)
+reg_log <- train(formula,
+                 data = train,
+                 method="glm",
+                 trControl = fitControl,
+                 family="binomial",
+                 na.action = na.omit)
+```
+
+###?rvore de decis?o
+
+A ?rvore de decis?o foi tumada definindo 10 valores distintos para seu hiperpar?metro de complexidade no intervalo [0, 0.01]. 
+
+```{r}
+#intervalo do hiperpar?metro
+values_cp <- expand.grid(fraction = seq(0, 0.01, length = 10))
+
+arvore <- train(formula,
+                 data=train,
+                 method = "rpart",
+                 trControl = fitControl,
+                 cp = values_cp,  # hiperpar?metro de complexidade
+                 maxdepth = 20,
+                 na.action = na.omit)
+plot(arvore)
+```
+
+O melhor valor observado foi para um `cp` de aproximadamente 0.0012.
+
+###Modelo Adaboost
+
+O modelo adaboost foi tunado por meio do teste de `n` valores para seu hiperpar?metro `n?mero de ?rvores`.
+
+```{r}
+adaboost <- train(formula,
+                  data=train,
+                  method = "adaboost",
+                  trControl = fitControl,
+                  na.action = na.omit)
+plot(adaboost)
+```
+
+O melhor valor observado foi para 900 ?rvores.
+
+##Reporte acur?cia, precision, recall e f-measure no treino e valida??o. Como voc? avalia os resultados? Justifique sua resposta.
+
+###Regress?o log?stica
+
+```{r}
+train$predict <- predict(reg_log, train)
+confusionMatrix(train$predict, train$situacao_final)
+```
+
+```{r}
+validation$predict <- predict(reg_log, validation)
+confusionMatrix(validation$predict, validation$situacao_final)
+```
+Tanto com os dados de treino como com os dados de teste o modelo preservou sua acur?cia em torno de 90%. A precis?o ou sensibilidade do modelo ficou em torno de 92,15%, indicando a propor??o de acerto do modelo ao classificar um deputado que ser? eleito. O recall ou especificidade ficou em torno de 89% sendo respons?vel pela propor??o de acertos do modelo ao classificar um deputado que n?o ser? eleito.   
+
+
+###?rvore de decis?o
+
+```{r}
+train$predict <- predict(arvore, train)
+confusionMatrix(train$predict, train$situacao_final)
+```
+
+```{r}
+validation$predict <- predict(arvore, validation)
+confusionMatrix(validation$predict, validation$situacao_final)
+```
+A acur?cia da ?rvore de decis?o ficou em torno de 94%. Em torno de 87% das observa??es s?o classificadas corretamente como deputado eleito e 97% s?o classificadas corretamente como deputado n?o eleitos.
+
+###Adaboost
+
+```{r}
+train$predict <- predict(adaboost, train)
+confusionMatrix(train$predict, train$situacao_final)
+```
+
+```{r}
+validation$predict <- predict(adaboost, validation)
+confusionMatrix(validation$predict, validation$situacao_final)
+```
+
+Adaboost apresentou acur?cia em torno de 100%. 90% das observa??es s?o classificadas corretamente como deputado eleito e 97% s?o classificadas corretamente como deputado n?o eleitos.
+
+##Interprete as sa?das dos modelos. Quais atributos parecem ser mais importantes de acordo com cada modelo? Crie pelo menos um novo atributo que n?o est? nos dados originais e estude o impacto desse atributo.
+
+Os gr?ficos exibem as 10 vari?veis mais importantes por ordem de import?ncia para cada modelo.
+
+```{r}
+ggplot(varImp(reg_log), top = 10) +
+theme(axis.title.y=element_blank()) +
+ggtitle("Regress?o log?stica - Vari?vel X Import?ncia")
+```
+
+```{r}
+ggplot(varImp(arvore), top = 10) +
+theme(axis.title.y=element_blank()) +
+ggtitle("?rvore de decis?o - Vari?vel X Import?ncia")
+```
+
+```{r}
+ggplot(varImp(adaboost), top = 10) +
+theme(axis.title.y=element_blank()) +
+ggtitle("Adaboost - Vari?vel X Import?ncia")
+```
+
+Vari?veis relacionadas a despesa ou receita aparecem dentre as mais importantes para os 3 modelos, como exemplo `total_despesa` e `media_receita`.
+
+##Envie seus melhores modelos ? competi??o do Kaggle.
+
+```{r}
+test <- read.csv("../dados/test_lab4.csv", encoding = "UTF-8")
+submission <- read.csv("../dados/sample_submission_lab4.csv")
+
+submission_predict <- predict(adaboost, test)
+
+for(i in 1:length(submission_predict)){
+  print(submission_predict[i])
+  submission$prediction[i] = submission_predict[i]
+}
+
+write.csv(submission, file = "../dados/submission.csv", row.names = FALSE)
+```
+
